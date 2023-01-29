@@ -14,24 +14,13 @@ POST /v1/user
 
 //sample JSON Schema
 User{
-    id	integer($int64)
-    example: 1
-    readOnly: true
-    first_name*	string
-    example: Jane
-    last_name*	string
-    example: Doe
-    password*	string($password)
-    example: somepassword
-    writeOnly: true
-    username*	string($email)
-    example: jane.doe@example.com
-    account_created	string($date-time)
-    example: 2016-08-29T09:12:33.001Z
-    readOnly: true
-    account_updated	string($date-time)
-    example: 2016-08-29T09:12:33.001Z
-    readOnly: true
+    id	integer($int64)                 example: 1                              readOnly: true
+    first_name*	string                  example: Jane
+    last_name*	string                  example: Doe
+    password*	string($password)       example: somepassword                   writeOnly: true
+    username*	string($email)          example: jane.doe@example.com
+    account_created	string($date-time)  example: 2016-08-29T09:12:33.001Z        readOnly: true
+    account_updated	string($date-time)  example: 2016-08-29T09:12:33.001Z        readOnly: true
 }
 
 //Sample JSON
