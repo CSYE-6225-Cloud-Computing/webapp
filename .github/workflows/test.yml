@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  apt test:
+  api_test:
     runs-on: ubuntu-latest
 
     strategy:
