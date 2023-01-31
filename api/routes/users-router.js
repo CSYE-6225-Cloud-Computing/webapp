@@ -1,16 +1,19 @@
-import express from "express";
-import * as UserController from '../controllers/users-controller.js';
+// defining routes to route request calls to corresponding methods
 
-const router = express.Router();
+const userController = require('../controllers/users-controller.js')
 
-router.route('/users')
-    .post(UserController.post)
-    .get(UserController.index);
+const router = require('express').Router()
 
-router.route('/users/:id')
-    .get(UserController.get)
-    .put(UserController.update)
-    .delete(UserController.remove);
+//Route for POST method
+router.post('/v1/user', userController.add)
 
-export default router;
+//Route for GET method
+router.get('/v1/user/:id', userController.retrieve)
 
+//Route for PUT method
+router.put('/v1/user/:id', userController.update)
+
+//Route for GET method // a dummy check method
+router.get('/healthz', userController.check)
+
+module.exports = router

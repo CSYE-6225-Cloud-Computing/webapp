@@ -1,20 +1,19 @@
-import express from 'express';
-import cors from 'cors';
-import routes from './routes/index.js';
-import model from './models/index.js';
+//initializing node JS application
 
-//import mongoose from 'mongoose';
-// use postgres tool import here
+const express = require('express')
 
-const app = express();
+const userRouter = require('./routes/users-router.js')
 
-// mongoose.connect('mongo url here')
-// enter postgres connection here
+const app = express()
 
-app.use(express.json());
-app.use(express.urlencoded());
-app.use(cors());
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
-routes(app);
+//initializing app to use routes 
+app.use('/', userRouter)
 
-export default app;
+app.use('*', (req, res) => {
+    res.status(400).send('Invalid route')
+})
+
+module.exports = app

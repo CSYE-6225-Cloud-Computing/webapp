@@ -1,7 +1,14 @@
-import app from './api/app.js';
+// initializing server port 
 
-const port = 9000;
+const app = require('./api/app.js');
 
-app.listen(port, ()=>{
-    console.log(`server running at ${port}.`);
-});
+//using dotenv for accessing environment variables
+require('dotenv').config()
+
+const PORT = process.env.PORT
+
+//server listening on port for incoming requests
+app.listen(PORT, () => {
+    
+    console.log(`running on port ${PORT}`)
+})
