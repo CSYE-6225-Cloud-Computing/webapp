@@ -1,16 +1,18 @@
-name: Node.js CI [Unit tests]
+# yaml file to test github actions
+
+name: Node api testing
 
 on:
   pull_request:
     branches: [ main ]
 
 jobs:
-  tests:
+  apt test:
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        node-version: [18.x, 16.x]
+        node-version: [18.x]
 
     steps:
     - uses: actions/checkout@v2
