@@ -7,13 +7,13 @@ const User = db.users
 
 // A dummy check method
 const check = (req,res) => {
-    sequelize.sequelize.authenticate()
-    .then(() => {
-        res.send('Connection has been established successfully.');
-    })
-    .catch(err => {
-        res.send('Unable to connect to the database:', err);
-    })
+    sequelize.authenticate()
+        .then(() => {
+            res.send('Connection established successfully.');
+        })
+        .catch(err => {
+            res.send('Unable to connect', err);
+        })
 }
 
 // add method to create a new user
@@ -25,7 +25,7 @@ const add = async (req, res) => {
     }
 
     // check if request body has all the necessary information
-    if(req.body.first_name == null || req.body.last_name == null || req.body.username == null || req.body.password == null){
+    if(!req.body.first_name || !req.body.last_name || !req.body.username || !req.body.password ){
         return res.status(400).send('Bad request')
     }
 
@@ -61,7 +61,7 @@ const add = async (req, res) => {
 
         // retrieving back the created user to send it back in response
         let response = await User.findOne({where: { username: username },
-            attributes: { exclude: [ 'password', 'createdAt', 'updatedAt' ]}})     
+            attributes: { exclude: [ 'password']}})
         return res.status(201).send(response)
     }
 
@@ -76,40 +76,36 @@ const retrieve = async (req, res) => {
     }
 
     // decoding the Auth Block
-    const authenticated = await authenticate(req)
+    const authenticated = await authenticate(req, res)
 
     if(authenticated == true){
 
         // retrieve user data based on parameter id
         let user = await User.findOne({where: { id: req.params.id },
-            attributes: { exclude: [ 'password', 'createdAt', 'updatedAt' ]}})
+            attributes: { exclude: [ 'password']}})
 
         if(user != null){
             return res.status(200).send(user)
         }
-
-        
-        return res.status(403).send('Forbidden')
     }
 
-    return res.status(403).send('Forbidden')
 }
 
 // Update method to be called on PUT method call
 const update = async (req, res) => {
     if(!req.body.first_name || !req.body.last_name || !req.body.password){
-        return res.status(400).json("Bad Request")
+        return res.status(400).send("Bad Request")
     }
-    
+
     if(!req.get('Authorization')){
         return res.status(401).send('Unauthorized')
     }
-    
+
     //should not allow user to update username, account created/updated
     if(!req.body.username && !req.body.account_created && !req.body.account_updated)
     {
         //decode auth
-        const authenticated = await authenticate(req)
+        const authenticated = await authenticate(req,res)
 
         if(authenticated == true){
 
@@ -120,33 +116,38 @@ const update = async (req, res) => {
 
             // update user
             const user = await User.update({first_name: req.body.first_name, last_name: req.body.last_name, password: hash, account_updated: new Date().toJSON()}, {where: { id: req.params.id }})
-            
+
             if(user == 1){
                 return res.status(204).send(user)
             }
-                return res.status(400).send('Bad request')
+            return res.status(400).send('Bad request')
         }
-            return res.status(403).send('Forbidden')
+    }else{
+        return res.status(400).send('Bad request')
     }
-    return res.status(400).send('Bad request')
 }
 
-// function decode and check authentication
-async function authenticate (req) {
-
-    // decoding the Auth Block
+// function to authenticate a user
+async function authenticate (req, res) {
+    // decrypt auth
     var basicAuth = Buffer.from(req.get('Authorization').split(' ')[1], 'base64').toString().split(':')
 
-    // retrieve user
+    // find the user by id
+    let userByID = await User.findOne({where: { id: req.params.id }})
     let user = await User.findOne({where: { username: basicAuth[0] }})
 
-    //checking if user exist
-    if(user != null && user.id == req.params.id){
-        // compare user password with stored hash
-        const authenticated = await bcrypt.compare(basicAuth[1], user.password)
-        return authenticated
+    if(user && userByID){
+        // check the auth
+        const authenticated = await bcrypt.compare(basicAuth[1], userByID.password)
+
+        if(authenticated && basicAuth[0] == userByID.username) {
+            return true
+        }
+        if(authenticated && basicAuth[0] != userByID.username){
+            return res.status(403).send('Forbidden')
+        }
     }
-    return false
+    return res.status(401).send('Unauthorized')
 }
 
 
