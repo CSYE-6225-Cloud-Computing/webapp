@@ -102,7 +102,7 @@ const update = async (req, res) => {
     }
 
     //should not allow user to update username, account created/updated
-    if(!req.body.username && !req.body.account_created && !req.body.account_updated)
+    if(!req.body.username && !req.body.account_created && !req.body.account_updated && Object.keys(req.body).length === 3)
     {
         //decode auth
         const authenticated = await authenticate(req,res)
