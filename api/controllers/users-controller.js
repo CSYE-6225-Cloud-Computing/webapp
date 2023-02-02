@@ -138,7 +138,7 @@ async function authenticate (req, res) {
 
     if(user && userByID){
         // check the auth
-        const authenticated = await bcrypt.compare(basicAuth[1], userByID.password)
+        const authenticated = await bcrypt.compare(basicAuth[1], user.password)
 
         if(authenticated && basicAuth[0] == userByID.username) {
             return true
