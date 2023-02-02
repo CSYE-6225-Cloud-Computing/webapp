@@ -28,7 +28,7 @@ GET /healthz
 //Create a User Account </br>
 POST /v1/user
 
-## Sample JSON Request for POST
+## Sample JSON Request for POST Method
 
 { </br>
   "first_name": "Jane",</br>
@@ -38,7 +38,7 @@ POST /v1/user
 }
 
 
-## Sample JSON Response for GET
+## Sample JSON Response for GET Method
 {</br>
   "id": 1,</br>
   "first_name": "Jane",</br>
