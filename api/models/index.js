@@ -39,6 +39,8 @@ db.sequelize = sequelize
 
 //utilizing DB Schema with sequelize
 db.users = require('./userModel')(sequelize, DataTypes)
+db.products = require('./productModel')(sequelize, DataTypes)
+
 
 db.sequelize.sync({ force: false })
 .then(() => {
