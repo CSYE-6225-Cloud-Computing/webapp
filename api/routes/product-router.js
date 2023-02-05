@@ -13,10 +13,10 @@ router.get('/product/:id', productController.retrieve)
 //Route for PUT method
 router.put('/product/:id', productController.update)
 
+//Route for PATCH method
 router.patch('/product/:id', productController.replace)
 
+//Route for DELETE method
 router.delete('/product/:id', productController.remove)
-
-
 
 module.exports = router
