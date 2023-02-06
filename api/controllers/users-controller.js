@@ -6,14 +6,11 @@ const sequelize  = require('../models/index')
 const User = db.users
 
 // A dummy check method
-const check = (req,res) => {
-    sequelize.authenticate()
-        .then(() => {
-            res.send('Connection established successfully.');
-        })
-        .catch(err => {
-            res.send('Unable to connect', err);
-        })
+const check = async (req,res) =>  {
+    sequelize.sequelize.authenticate()
+    .then(() => {
+        res.send('Connection established successfully.');
+    })
 }
 
 // add method to create a new user
