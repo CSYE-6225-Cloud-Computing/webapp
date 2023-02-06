@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt')
+const moment = require('moment')
 
 const db = require('../models')
 const sequelize  = require('../models/index')
@@ -22,6 +23,8 @@ const add = async (req, res) => {
     const authenticated = await authenticate(req,res)
     
     if(!isNaN(authenticated)){
+        
+        //var date = moment().tz("America/New_York").format('YYYY-MM-DDTHH:mm:ss.sss')
 
         // structuring JSON object with Info
         let newProduct = {
@@ -35,13 +38,20 @@ const add = async (req, res) => {
             owner_user_id: authenticated
         }
 
-        await Products.create(newProduct)
+        let isSKUExist = await Products.findOne({where: { sku: req.body.sku }})
 
-        // retrieving back the created user to send it back in response
-        let response = await Products.findOne({where: { name: req.body.name }})
-        return res.status(201).send(response)
-    }else{
-        return res.status(400).send('Bad request')
+        if(isSKUExist != null){
+            
+            return res.status("400").send("SKU already Exist")
+        }else{
+
+            await Products.create(newProduct)
+
+            // retrieving back the created user to send it back in response
+            let response = await Products.findOne({where: { sku: req.body.sku }})
+            return res.status(201).send(response)
+        }
+         
     }
     
 }

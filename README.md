@@ -83,6 +83,9 @@ POST /v1/user
 //PUT Method URL for products
 /v1/product/{product Id}
 
+//PUT Method URL for products
+/v1/product/{product Id}
+
 //DELETE Method URL for products
 /v1/product/{product Id}
 
