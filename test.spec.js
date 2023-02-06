@@ -12,11 +12,21 @@ describe('Authentication Tests', function() {
 
     describe('Successes', function() {
 
-        it('POST method Failure', function(done) {
+        it('POST method Failure for Users', function(done) {
 
             request(app).post('/v1/user').send({ username:'test@gmail.com'}).end(function(err, res) {
 
                 expect(res.statusCode).to.be.equal(400)
+                
+                done()
+            })
+        })
+
+        it('POST method Failure for Products', function(done) {
+
+            request(app).post('/v1/product').send({ username:'test@gmail.com'}).end(function(err, res) {
+
+                expect(res.statusCode).to.be.equal(401)
                 
                 done()
             })
