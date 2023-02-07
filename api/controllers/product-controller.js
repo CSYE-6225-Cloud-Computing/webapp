@@ -15,7 +15,7 @@ const add = async (req, res) => {
     }
 
     // check if request body has all the necessary information
-    if(Object.keys(req.body).length != 5 || !req.body.name || !req.body.description || !req.body.sku || !req.body.manufacturer || !req.body.quantity || req.body.quantity < 0){
+    if(Object.keys(req.body).length != 5 || !req.body.name || !req.body.description || !req.body.sku || !req.body.manufacturer || !req.body.quantity || req.body.quantity < 0 || req.body.quantity > 100){
         return res.status(400).send('Bad request')
     }
 
@@ -104,7 +104,7 @@ const update = async (req, res) => {
         return res.status(401).send('Unauthorized')
     }
 
-    if(!req.body.name || !req.body.description || !req.body.manufacturer || !req.body.sku || !req.body.quantity ){
+    if(!req.body.name || !req.body.description || !req.body.manufacturer || !req.body.sku || !req.body.quantity || req.body.quantity < 0 || req.body.quantity > 100){
         return res.status(400).send("Bad Request")
     }
 
@@ -115,6 +115,13 @@ const update = async (req, res) => {
         const authenticated = await authenticate(req,res)
 
         if(!isNaN(authenticated)){
+
+            let isSKUExist = await Products.findOne({where: { sku: req.body.sku }})
+
+            if(isSKUExist != null && isSKUExist.id != req.params.id){
+                
+                return res.status(400).send("SKU already Exist")
+            }
 
             // update product
             const product = await Products.update(
@@ -129,12 +136,15 @@ const update = async (req, res) => {
                 {where: { id: req.params.id }})
 
             if(product == 1){
+
                 return res.status(204).send(product)
+
+            }else{
+
+                return res.status(400).send('Bad request')
             }
-            return res.status(400).send('Bad request')
+            
         }
-    }else{
-        return res.status(400).send('Bad request')
     }
 }
 
@@ -192,26 +202,50 @@ async function authenticate (req, res) {
         // check the auth
         if(req.params.id) {
 
-            let product = await Products.findOne({where: { id: req.params.id }})
+            const authenticated = await bcrypt.compare(basicAuth[1], user.password)
 
-            if(product != null && user.id != product.owner_user_id){
-                return res.status(401).send('Unauthorized')
+            if(authenticated){
+
+                let product = await Products.findOne({where: { id: req.params.id }})
+
+                if(product != null && user.id != product.owner_user_id){
+
+                    return res.status(401).send('Forbidden')
+
+                }else{
+
+                    return user.id
+                }
             }else{
-                return user.id
+
+                return res.status(401).send('Unauthorized')
             }
 
         }else{
             
             const authenticated = await bcrypt.compare(basicAuth[1], user.password)
 
-            if(authenticated && basicAuth[0] == user.username) {
-                return user.id
+            if(authenticated){ 
+
+                if(basicAuth[0] == user.username) {
+
+                    return user.id
+
+                }else{
+
+                    return res.status(403).send('Forbidden')
+
+                }
             }else{
-                return res.status(403).send('Forbidden')
+
+                return res.status(403).send('Unauthorized')
             }
         }
+
     }else{
+
         return res.status(401).send('Unauthorized')
+
     }
 }
 
