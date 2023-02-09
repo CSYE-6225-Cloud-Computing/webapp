@@ -156,13 +156,26 @@ const update = async (req, res) => {
 // Update method to be called on PATCH method call
 const replace = async (req, res) => {
 
+    const bodyAllowedList = new Set (['name', 'description','manufacturer','quantity','sku'])
+
+    for (const prop in req.body) {
+        if(req.body.hasOwnProperty(prop) && !bodyAllowedList.has(prop)) {
+            return res.status(400).json('Bad request');
+        }
+    }
+
+
     if(!req.get('Authorization')){
         return res.status(401).send('Unauthorized')
     }
 
-    if((!req.body.name && !req.body.description && !req.body.manufacturer && !req.body.sku && !req.body.quantity) || (req.body.quantity && typeof req.body.quantity === 'string') || (req.body.quantity && (req.body.quantity < 0 || req.body.quantity > 100)) || req.body.quantity % 1 != 0 || req.body.id || req.body.owner_user_id || req.body.account_created || req.body.account_updated){
-        return res.status(400).send("Bad Request")
+    if((!req.body.name && !req.body.description && !req.body.manufacturer && !req.body.sku && !req.body.quantity) ||
+     (req.body.quantity && typeof req.body.quantity === 'string') || (req.body.quantity && (req.body.quantity < 0 || req.body.quantity > 100)) ||
+     (req.body.quantity && req.body.quantity % 1 != 0) || req.body.id || req.body.owner_user_id || req.body.account_created || req.body.account_updated ){
+        
+        return res.status(400).send('Bad Request')
     }
+
 
     //should not allow user to update username, account created/updated
         //decode auth
@@ -178,7 +191,6 @@ const replace = async (req, res) => {
             }
         }
             
-
         var date = moment().tz("America/New_York").format('YYYY-MM-DDTHH:mm:ss.sss')
         
         // update product
