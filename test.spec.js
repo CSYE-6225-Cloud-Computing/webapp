@@ -24,12 +24,23 @@ describe('Authentication Tests', function() {
 
         it('POST method Failure for Products', function(done) {
 
-            request(app).post('/v1/product').send({ username:'test@gmail.com'}).end(function(err, res) {
+            request(app).post('/v1/product').send({ sku:'test'}).end(function(err, res) {
 
                 expect(res.statusCode).to.be.equal(401)
                 
                 done()
             })
         })
+
+        it('Return the product for post if auth does not exist', function(done) {
+            
+            request(app).post('/v1/product/').send({}).end(function(err, res) {
+                
+                expect(res.statusCode).to.be.equal(401);                
+                
+                done();
+            });
+        });
+
     })
 })
