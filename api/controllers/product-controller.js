@@ -15,8 +15,13 @@ const add = async (req, res) => {
     }
 
     // check if request body has all the necessary information
-    if(Object.keys(req.body).length != 5 || !req.body.name || !req.body.description || !req.body.sku || !req.body.manufacturer || !req.body.quantity || req.body.quantity < 0 || req.body.quantity > 100){
-        return res.status(400).send('Bad request')
+
+    if(Object.keys(req.body).length != 5 ||!req.body.name || !req.body.description || !req.body.sku || !req.body.manufacturer ||
+     !req.body.quantity || typeof req.body.quantity === 'string' || req.body.quantity<0 || req.body.quantity >100 || req.body.quantity % 1 != 0 ||
+        req.body.id || req.body.owner_user_id || req.body.account_created || req.body.account_updated){
+            
+            return res.status(400).send('Bad request!!')
+
     }
 
     //decode auth
@@ -24,31 +29,31 @@ const add = async (req, res) => {
     
     if(!isNaN(authenticated)){
         
-        //var date = moment().tz("America/New_York").format('YYYY-MM-DDTHH:mm:ss.sss')
+        var date = moment().tz("America/New_York").format('YYYY-MM-DDTHH:mm:ss.sss')
 
         // structuring JSON object with Info
         let newProduct = {
             name: req.body.name,
             description: req.body.description,
-            sku: req.body.sku,
+            sku: (req.body.sku).toLowerCase(),
             manufacturer: req.body.manufacturer,
             quantity : req.body.quantity,
-            date_added: (new Date()).toJSON(),
-            date_last_updated: (new Date()).toJSON(),
+            date_added: date,
+            date_last_updated: date,
             owner_user_id: authenticated
         }
 
-        let isSKUExist = await Products.findOne({where: { sku: req.body.sku }})
+        let isSKUExist = await Products.findOne({where: { sku: (req.body.sku).toLowerCase() }})
 
         if(isSKUExist != null){
             
-            return res.status("400").send("SKU already Exist")
+            return res.status(400).send("SKU already Exist")
         }else{
 
             await Products.create(newProduct)
 
             // retrieving back the created user to send it back in response
-            let response = await Products.findOne({where: { sku: req.body.sku }})
+            let response = await Products.findOne({where: { sku: (req.body.sku).toLowerCase() }})
             return res.status(201).send(response)
         }
          
@@ -65,7 +70,7 @@ const retrieve = async (req, res) => {
     if(product != null){
         return res.status(200).send(product)
     }else{
-        return res.status(400).send("Bad Request")
+        return res.status(404).send("Not Found")
     }
 
 }
@@ -91,7 +96,7 @@ const remove = async (req,res) => {
 
         }else{
 
-            return res.status(400).send("Bad Request")
+            return res.status(404).send("Not Found")
         }
     }
     
@@ -104,34 +109,33 @@ const update = async (req, res) => {
         return res.status(401).send('Unauthorized')
     }
 
-    if(!req.body.name || !req.body.description || !req.body.manufacturer || !req.body.sku || !req.body.quantity || req.body.quantity < 0 || req.body.quantity > 100){
-        return res.status(400).send("Bad Request")
+    if(Object.keys(req.body).length != 5 || !req.body.name || !req.body.description || !req.body.sku || !req.body.manufacturer || !req.body.quantity || typeof req.body.quantity === 'string' || req.body.quantity<0 || req.body.quantity >100 || req.body.quantity % 1 != 0 ||
+        req.body.id || req.body.owner_user_id || req.body.account_created || req.body.account_updated){
+            return res.status(400).send('Bad request')
     }
-
-    //should not allow user to update username, account created/updated
-    if(Object.keys(req.body).length === 5 && !req.body.id && !req.body.owner_user_id && !req.body.account_created && !req.body.account_updated)
-    {
         //decode auth
         const authenticated = await authenticate(req,res)
 
         if(!isNaN(authenticated)){
 
-            let isSKUExist = await Products.findOne({where: { sku: req.body.sku }})
+            let isSKUExist = await Products.findOne({where: { sku: (req.body.sku).toLowerCase() }})
 
             if(isSKUExist != null && isSKUExist.id != req.params.id){
                 
                 return res.status(400).send("SKU already Exist")
             }
 
+            var date = moment().tz("America/New_York").format('YYYY-MM-DDTHH:mm:ss.sss')
+
             // update product
             const product = await Products.update(
                 {
                     name: req.body.name,
                     description: req.body.description,
-                    sku: req.body.sku,
+                    sku: (req.body.sku).toLowerCase(),
                     manufacturer: req.body.manufacturer,
                     quantity : req.body.quantity,
-                    date_last_updated : (new Date()).toJSON()
+                    date_last_updated : date
                 },
                 {where: { id: req.params.id }})
 
@@ -145,7 +149,7 @@ const update = async (req, res) => {
             }
             
         }
-    }
+    
 }
 
 
@@ -156,38 +160,50 @@ const replace = async (req, res) => {
         return res.status(401).send('Unauthorized')
     }
 
-    if(!req.body.name || !req.body.description || !req.body.manufacturer || !req.body.sku || !req.body.quantity ){
+    if((!req.body.name && !req.body.description && !req.body.manufacturer && !req.body.sku && !req.body.quantity) || (req.body.quantity && typeof req.body.quantity === 'string') || (req.body.quantity && (req.body.quantity < 0 || req.body.quantity > 100)) || req.body.quantity % 1 != 0 || req.body.id || req.body.owner_user_id || req.body.account_created || req.body.account_updated){
         return res.status(400).send("Bad Request")
     }
 
     //should not allow user to update username, account created/updated
-    if(Object.keys(req.body).length === 5 && !req.body.id && !req.body.owner_user_id && !req.body.account_created && !req.body.account_updated)
-    {
         //decode auth
-        const authenticated = await authenticate(req,res)
+    const authenticated = await authenticate(req,res)
 
-        if(!isNaN(authenticated)){
+    if(!isNaN(authenticated)){
+        if(req.body.sku){
+            let isSKUExist = await Products.findOne({where: { sku: (req.body.sku).toLowerCase() }})
 
-            // update product
-            const product = await Products.update(
-                {
-                    name: req.body.name,
-                    description: req.body.description,
-                    sku: req.body.sku,
-                    manufacturer: req.body.manufacturer,
-                    quantity : req.body.quantity,
-                    date_last_updated : (new Date()).toJSON()
-                },
-                {where: { id: req.params.id }})
-
-            if(product == 1){
-                return res.status(204).send(product)
+            if(isSKUExist != null && isSKUExist.id != req.params.id){
+            
+                return res.status(400).send("SKU already Exist")
             }
+        }
+            
+
+        var date = moment().tz("America/New_York").format('YYYY-MM-DDTHH:mm:ss.sss')
+        
+        // update product
+        const product = await Products.update(
+            {
+                name: req.body.name,
+                description: req.body.description,
+                sku: (req.body.sku).toLowerCase(),
+                manufacturer: req.body.manufacturer,
+                quantity : req.body.quantity,
+                date_last_updated : date
+            },
+            {where: { id: req.params.id }})
+
+        if(product == 1){
+
+            return res.status(204).send(product)
+
+        }else{
+
             return res.status(400).send('Bad request')
         }
-    }else{
-        return res.status(400).send('Bad request')
+            
     }
+    
 }
 
 
@@ -210,7 +226,7 @@ async function authenticate (req, res) {
 
                 if(product != null && user.id != product.owner_user_id){
 
-                    return res.status(401).send('Forbidden')
+                    return res.status(403).send('Forbidden')
 
                 }else{
 
