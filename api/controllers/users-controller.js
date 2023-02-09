@@ -1,4 +1,6 @@
 const bcrypt = require('bcrypt')
+const moment = require('moment')
+
 
 const db = require('../models')
 const sequelize  = require('../models/index')
@@ -26,13 +28,14 @@ const add = async (req, res) => {
         return res.status(400).send('Bad request')
     }
 
+    var date = moment().tz("America/New_York").format('YYYY-MM-DDTHH:mm:ss.sss')
+
     // retrieves attribute values from request body
     var first_name = req.body.first_name
     var last_name = req.body.last_name
     var username = req.body.username
     var password = req.body.password
-    var date = new Date()
-    var created_date = date.toJSON()
+    var created_date = date
 
     // standard email regex
     var re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
@@ -90,9 +93,6 @@ const retrieve = async (req, res) => {
 
 // Update method to be called on PUT method call
 const update = async (req, res) => {
-    if(!req.body.first_name || !req.body.last_name || !req.body.password){
-        return res.status(400).send("Bad Request")
-    }
 
     if(!req.get('Authorization')){
         return res.status(401).send('Unauthorized')
@@ -106,13 +106,18 @@ const update = async (req, res) => {
 
         if(authenticated == true){
 
+            if(!req.body.first_name || !req.body.last_name || !req.body.password){
+                return res.status(400).send("Bad Request")
+            }
+
             var password = req.body.password
 
             // hashing the password using salt
             const hash = await bcrypt.hash(password, 10)
 
+            var date = moment().tz("America/New_York").format('YYYY-MM-DDTHH:mm:ss.sss')
             // update user
-            const user = await User.update({first_name: req.body.first_name, last_name: req.body.last_name, password: hash, account_updated: new Date().toJSON()}, {where: { id: req.params.id }})
+            const user = await User.update({first_name: req.body.first_name, last_name: req.body.last_name, password: hash, account_updated: date}, {where: { id: req.params.id }})
 
             if(user == 1){
                 return res.status(204).send(user)

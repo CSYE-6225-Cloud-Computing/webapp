@@ -2,7 +2,6 @@ const bcrypt = require('bcrypt')
 const moment = require('moment')
 
 const db = require('../models')
-const sequelize  = require('../models/index')
 
 const User = db.users
 
@@ -14,20 +13,17 @@ const add = async (req, res) => {
         return res.status(401).send('Unauthorized')
     }
 
-    // check if request body has all the necessary information
-
-    if(Object.keys(req.body).length != 5 ||!req.body.name || !req.body.description || !req.body.sku || !req.body.manufacturer ||
-     !req.body.quantity || typeof req.body.quantity === 'string' || req.body.quantity<0 || req.body.quantity >100 || req.body.quantity % 1 != 0 ||
-        req.body.id || req.body.owner_user_id || req.body.account_created || req.body.account_updated){
-            
-            return res.status(400).send('Bad request!!')
-
-    }
-
-    //decode auth
     const authenticated = await authenticate(req,res)
     
     if(!isNaN(authenticated)){
+
+        if(Object.keys(req.body).length != 5 ||!req.body.name || !req.body.description || !req.body.sku || !req.body.manufacturer ||
+            !req.body.quantity || typeof req.body.quantity === 'string' || req.body.quantity<0 || req.body.quantity >100 || req.body.quantity % 1 != 0 ||
+            req.body.id || req.body.owner_user_id || req.body.account_created || req.body.account_updated){
+            
+                return res.status(400).send('Bad request')
+
+        }
         
         var date = moment().tz("America/New_York").format('YYYY-MM-DDTHH:mm:ss.sss')
 
@@ -35,7 +31,7 @@ const add = async (req, res) => {
         let newProduct = {
             name: req.body.name,
             description: req.body.description,
-            sku: (req.body.sku).toLowerCase(),
+            sku: req.body.sku,
             manufacturer: req.body.manufacturer,
             quantity : req.body.quantity,
             date_added: date,
@@ -43,7 +39,7 @@ const add = async (req, res) => {
             owner_user_id: authenticated
         }
 
-        let isSKUExist = await Products.findOne({where: { sku: (req.body.sku).toLowerCase() }})
+        let isSKUExist = await Products.findOne({where: { sku: req.body.sku }})
 
         if(isSKUExist != null){
             
@@ -53,7 +49,7 @@ const add = async (req, res) => {
             await Products.create(newProduct)
 
             // retrieving back the created user to send it back in response
-            let response = await Products.findOne({where: { sku: (req.body.sku).toLowerCase() }})
+            let response = await Products.findOne({where: { sku: req.body.sku }})
             return res.status(201).send(response)
         }
          
@@ -109,16 +105,18 @@ const update = async (req, res) => {
         return res.status(401).send('Unauthorized')
     }
 
-    if(Object.keys(req.body).length != 5 || !req.body.name || !req.body.description || !req.body.sku || !req.body.manufacturer || !req.body.quantity || typeof req.body.quantity === 'string' || req.body.quantity<0 || req.body.quantity >100 || req.body.quantity % 1 != 0 ||
-        req.body.id || req.body.owner_user_id || req.body.account_created || req.body.account_updated){
-            return res.status(400).send('Bad request')
-    }
+    
         //decode auth
         const authenticated = await authenticate(req,res)
 
         if(!isNaN(authenticated)){
 
-            let isSKUExist = await Products.findOne({where: { sku: (req.body.sku).toLowerCase() }})
+            if(Object.keys(req.body).length != 5 || !req.body.name || !req.body.description || !req.body.sku || !req.body.manufacturer || !req.body.quantity || typeof req.body.quantity === 'string' || req.body.quantity<0 || req.body.quantity >100 || req.body.quantity % 1 != 0 ||
+                req.body.id || req.body.owner_user_id || req.body.account_created || req.body.account_updated){
+                    return res.status(400).send('Bad request')
+            }
+
+            let isSKUExist = await Products.findOne({where: { sku: req.body.sku }})
 
             if(isSKUExist != null && isSKUExist.id != req.params.id){
                 
@@ -132,7 +130,7 @@ const update = async (req, res) => {
                 {
                     name: req.body.name,
                     description: req.body.description,
-                    sku: (req.body.sku).toLowerCase(),
+                    sku: req.body.sku,
                     manufacturer: req.body.manufacturer,
                     quantity : req.body.quantity,
                     date_last_updated : date
@@ -156,34 +154,31 @@ const update = async (req, res) => {
 // Update method to be called on PATCH method call
 const replace = async (req, res) => {
 
-    const bodyAllowedList = new Set (['name', 'description','manufacturer','quantity','sku'])
-
-    for (const prop in req.body) {
-        if(req.body.hasOwnProperty(prop) && !bodyAllowedList.has(prop)) {
-            return res.status(400).json('Bad request');
-        }
-    }
-
-
     if(!req.get('Authorization')){
         return res.status(401).send('Unauthorized')
     }
 
-    if((!req.body.name && !req.body.description && !req.body.manufacturer && !req.body.sku && !req.body.quantity) ||
-     (req.body.quantity && typeof req.body.quantity === 'string') || (req.body.quantity && (req.body.quantity < 0 || req.body.quantity > 100)) ||
-     (req.body.quantity && req.body.quantity % 1 != 0) || req.body.id || req.body.owner_user_id || req.body.account_created || req.body.account_updated ){
-        
-        return res.status(400).send('Bad Request')
-    }
-
-
-    //should not allow user to update username, account created/updated
-        //decode auth
     const authenticated = await authenticate(req,res)
 
     if(!isNaN(authenticated)){
+
+        const bodyAllowedList = new Set (['name', 'description','manufacturer','quantity','sku'])
+
+        for (const prop in req.body) {
+            if(req.body.hasOwnProperty(prop) && !bodyAllowedList.has(prop)) {
+                return res.status(400).json('Bad request');
+            }
+        }
+
+        if((!req.body.name && !req.body.description && !req.body.manufacturer && !req.body.sku && !req.body.quantity) ||
+            (req.body.quantity && typeof req.body.quantity === 'string') || (req.body.quantity && (req.body.quantity < 0 || req.body.quantity > 100)) ||
+            (req.body.quantity && req.body.quantity % 1 != 0) || req.body.id || req.body.owner_user_id || req.body.account_created || req.body.account_updated ){
+        
+            return res.status(400).send('Bad Request')
+        }
+
         if(req.body.sku){
-            let isSKUExist = await Products.findOne({where: { sku: (req.body.sku).toLowerCase() }})
+            let isSKUExist = await Products.findOne({where: { sku: req.body.sku }})
 
             if(isSKUExist != null && isSKUExist.id != req.params.id){
             
@@ -198,7 +193,7 @@ const replace = async (req, res) => {
             {
                 name: req.body.name,
                 description: req.body.description,
-                sku: (req.body.sku).toLowerCase(),
+                sku: req.body.sku,
                 manufacturer: req.body.manufacturer,
                 quantity : req.body.quantity,
                 date_last_updated : date
@@ -254,24 +249,16 @@ async function authenticate (req, res) {
             const authenticated = await bcrypt.compare(basicAuth[1], user.password)
 
             if(authenticated){ 
-
                 if(basicAuth[0] == user.username) {
-
                     return user.id
-
                 }else{
-
                     return res.status(403).send('Forbidden')
-
                 }
             }else{
-
                 return res.status(403).send('Unauthorized')
             }
         }
-
     }else{
-
         return res.status(401).send('Unauthorized')
 
     }

@@ -25,7 +25,6 @@ module.exports = (sequelize, DataTypes) => {
             },
             quantity: {
                 type: DataTypes.INTEGER,
-                validator: {min:0, max:100},
                 allowNull: false
             },
             date_added: {
