@@ -1,7 +1,6 @@
 const bcrypt = require('bcrypt')
 const moment = require('moment')
 
-
 const db = require('../models')
 const sequelize  = require('../models/index')
 

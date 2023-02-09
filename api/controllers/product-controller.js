@@ -5,7 +5,6 @@ const db = require('../models')
 const User = db.users
 const Products = db.products
 
-var date = moment().tz("America/New_York").format('YYYY-MM-DDTHH:mm:ss.sss')
 
 // will be called for POST Method
 const add = async (req, res) => {
@@ -27,6 +26,8 @@ const add = async (req, res) => {
             
                 return res.status(400).send('Bad request')
         }
+
+        var date = moment().tz("America/New_York").format('YYYY-MM-DDTHH:mm:ss.sss')
 
         // structuring JSON object with Info
         let newProduct = {
@@ -122,6 +123,8 @@ const update = async (req, res) => {
             return res.status(400).send("SKU already Exist")
         }
 
+        var date = moment().tz("America/New_York").format('YYYY-MM-DDTHH:mm:ss.sss')
+
         // update product
         const product = await Products.update(
             {
@@ -179,6 +182,8 @@ const replace = async (req, res) => {
                 return res.status(400).send("SKU already Exist")
             }
         }
+
+        var date = moment().tz("America/New_York").format('YYYY-MM-DDTHH:mm:ss.sss')
                     
         // update product
         const product = await Products.update(
