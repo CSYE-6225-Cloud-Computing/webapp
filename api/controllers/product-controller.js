@@ -30,7 +30,7 @@ const add = async (req, res) => {
                         
             (!req.body.manufacturer) || req.body.manufacturer === null || typeof req.body.manufacturer != 'string' || req.body.manufacturer.trim().length === 0 || 
                         
-            (!req.body.quantity) || req.body.quantity === null || typeof req.body.quantity != 'number' ||  req.body.quantity < 0 || req.body.quantity > 100 || req.body.quantity % 1 != 0 || 
+            req.body.quantity === null || typeof req.body.quantity != 'number' ||  req.body.quantity < 0 || req.body.quantity > 100 || req.body.quantity % 1 != 0 || 
                         
             req.body.id || req.body.owner_user_id || req.body.account_created || req.body.account_updated
         ){
@@ -140,7 +140,7 @@ const update = async (req, res) => {
                     
         (!req.body.manufacturer) || req.body.manufacturer === null || typeof req.body.manufacturer != 'string' || req.body.manufacturer.trim().length === 0 || 
                     
-        (!req.body.quantity) || req.body.quantity === null || typeof req.body.quantity != 'number' ||  req.body.quantity < 0 || req.body.quantity > 100 || req.body.quantity % 1 != 0 || 
+        req.body.quantity === null || typeof req.body.quantity != 'number' ||  req.body.quantity < 0 || req.body.quantity > 100 || req.body.quantity % 1 != 0 || 
                     
         req.body.id || req.body.owner_user_id || req.body.account_created || req.body.account_updated
     ){
