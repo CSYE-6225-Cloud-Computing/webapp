@@ -19,12 +19,22 @@ const add = async (req, res) => {
     
     if(!isNaN(authenticated)){
 
-        //check if request body is valid
-        if(Object.keys(req.body).length != 5 ||!req.body.name || !req.body.description || !req.body.sku || (req.body.sku).trim().length === 0 || !req.body.manufacturer ||
-            !req.body.quantity || typeof req.body.quantity === 'string' || req.body.quantity<0 || req.body.quantity >100 || req.body.quantity % 1 != 0 ||
-            req.body.id || req.body.owner_user_id || req.body.account_created || req.body.account_updated){
+        if(
+            Object.keys(req.body).length != 5 || 
+
+            (!req.body.name) || req.body.name === null || typeof req.body.name != 'string' ||  req.body.name.trim().length === 0 || 
             
-                return res.status(400).send('Bad request')
+            (!req.body.description) || req.body.description === null || typeof req.body.description != 'string' || req.body.description.trim().length === 0 || 
+                        
+            (!req.body.sku) || req.body.sku === null || typeof req.body.sku != 'string' || req.body.sku.trim().length === 0 || 
+                        
+            (!req.body.manufacturer) || req.body.manufacturer === null || typeof req.body.manufacturer != 'string' || req.body.manufacturer.trim().length === 0 || 
+                        
+            (!req.body.quantity) || req.body.quantity === null || typeof req.body.quantity != 'number' ||  req.body.quantity < 0 || req.body.quantity > 100 || req.body.quantity % 1 != 0 || 
+                        
+            req.body.id || req.body.owner_user_id || req.body.account_created || req.body.account_updated
+        ){
+            return res.status(400).send('Bad request')
         }
 
         var date = moment().tz("America/New_York").format('YYYY-MM-DDTHH:mm:ss.sss')
@@ -60,6 +70,10 @@ const add = async (req, res) => {
 // method to be executed on GET method call
 const retrieve = async (req, res) => {
 
+    if(isNaN(req.params.id)){
+        return res.status(400).json('Bad request');
+    }
+
     let product = await Products.findOne({where: { id: req.params.id }})
 
     //check if product exist
@@ -72,6 +86,10 @@ const retrieve = async (req, res) => {
 }
 
 const remove = async (req,res) => {
+
+    if(isNaN(req.params.id)){
+        return res.status(400).json('Bad request');
+    }
 
     //check if auth block exist in request
     if(!req.get('Authorization')){
@@ -100,6 +118,10 @@ const remove = async (req,res) => {
 // Update method to be called on PUT method call
 const update = async (req, res) => {
 
+    if(isNaN(req.params.id)){
+        return res.status(400).json('Bad request');
+    }
+
     //check if auth block exist
     if(!req.get('Authorization')){
         return res.status(401).send('Unauthorized')
@@ -107,14 +129,23 @@ const update = async (req, res) => {
 
     const authenticated = await authenticate(req,res)
 
-    if(!isNaN(authenticated)){
+    if(
+        Object.keys(req.body).length != 5 || 
 
-        //check if req body is valid
-        if(Object.keys(req.body).length != 5 || !req.body.name || !req.body.description || !req.body.sku || (req.body.sku).trim().length === 0 || !req.body.manufacturer || !req.body.quantity || typeof req.body.quantity === 'string' || req.body.quantity<0 || req.body.quantity >100 || req.body.quantity % 1 != 0 ||
-            req.body.id || req.body.owner_user_id || req.body.account_created || req.body.account_updated){
-                
-                return res.status(400).send('Bad request')
-        }
+        (!req.body.name) || req.body.name === null || typeof req.body.name != 'string' ||  req.body.name.trim().length === 0 || 
+            
+        (!req.body.description) || req.body.description === null || typeof req.body.description != 'string' || req.body.description.trim().length === 0 || 
+                    
+        (!req.body.sku) || req.body.sku === null || typeof req.body.sku != 'string' || req.body.sku.trim().length === 0 || 
+                    
+        (!req.body.manufacturer) || req.body.manufacturer === null || typeof req.body.manufacturer != 'string' || req.body.manufacturer.trim().length === 0 || 
+                    
+        (!req.body.quantity) || req.body.quantity === null || typeof req.body.quantity != 'number' ||  req.body.quantity < 0 || req.body.quantity > 100 || req.body.quantity % 1 != 0 || 
+                    
+        req.body.id || req.body.owner_user_id || req.body.account_created || req.body.account_updated
+    ){
+        return res.status(400).send('Bad request')
+    }
 
         //check if SKU exist
         let isSKUExist = await Products.findOne({where: { sku: req.body.sku }})
@@ -143,11 +174,15 @@ const update = async (req, res) => {
             return res.status(400).send('Bad request')
         }
     }
-}
+
 
 
 // Update method to be called on PATCH method call
 const replace = async (req, res) => {
+
+    if(isNaN(req.params.id)){
+        return res.status(400).json('Bad request');
+    }
 
     if(!req.get('Authorization')){
         return res.status(401).send('Unauthorized')
@@ -167,11 +202,20 @@ const replace = async (req, res) => {
         }
 
         //check if req body is valid
-        if((!req.body.name && !req.body.description && !req.body.manufacturer && !req.body.sku && !req.body.quantity) || (req.body.sku && (req.body.sku).trim().length === 0) ||
-            (req.body.quantity && typeof req.body.quantity === 'string') || (req.body.quantity && (req.body.quantity < 0 || req.body.quantity > 100)) ||
-            (req.body.quantity && req.body.quantity % 1 != 0) || req.body.id || req.body.owner_user_id || req.body.account_created || req.body.account_updated ){
-        
-            return res.status(400).send('Bad Request')
+        if( 
+            ((!req.body.name) && (req.body.name === null || typeof req.body.name != 'string' ||  req.body.name.trim().length === 0)) || 
+            
+            ((req.body.description) && (req.body.description === null || typeof req.body.description != 'string' || req.body.description.trim().length === 0)) || 
+                        
+            ((req.body.sku) && (req.body.sku === null || typeof req.body.sku != 'string' || req.body.sku.trim().length === 0)) || 
+                        
+            ((req.body.manufacturer) && (req.body.manufacturer === null || typeof req.body.manufacturer != 'string' || req.body.manufacturer.trim().length === 0)) || 
+                        
+            ((req.body.quantity) && (req.body.quantity === null || typeof req.body.quantity != 'number' ||  req.body.quantity < 0 || req.body.quantity > 100 || req.body.quantity % 1 != 0)) || 
+                        
+            req.body.id || req.body.owner_user_id || req.body.account_created || req.body.account_updated
+        ){
+            return res.status(400).send('Bad request')
         }
 
         //check if product already exists
