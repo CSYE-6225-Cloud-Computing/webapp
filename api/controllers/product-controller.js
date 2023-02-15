@@ -203,7 +203,7 @@ const replace = async (req, res) => {
 
         //check if req body is valid
         if( 
-            ((!req.body.name) && (req.body.name === null || typeof req.body.name != 'string' ||  req.body.name.trim().length === 0)) || 
+            ((req.body.name) && (req.body.name === null || typeof req.body.name != 'string' ||  req.body.name.trim().length === 0)) || 
             
             ((req.body.description) && (req.body.description === null || typeof req.body.description != 'string' || req.body.description.trim().length === 0)) || 
                         
@@ -211,7 +211,7 @@ const replace = async (req, res) => {
                         
             ((req.body.manufacturer) && (req.body.manufacturer === null || typeof req.body.manufacturer != 'string' || req.body.manufacturer.trim().length === 0)) || 
                         
-            ((req.body.quantity) && (req.body.quantity === null || typeof req.body.quantity != 'number' ||  req.body.quantity < 0 || req.body.quantity > 100 || req.body.quantity % 1 != 0)) || 
+            ((req.body.quantity) && (req.body.quantity === null || typeof req.body.quantity != 'number' || req.body.quantity < 0 || req.body.quantity > 100 || req.body.quantity % 1 != 0)) || 
                         
             req.body.id || req.body.owner_user_id || req.body.account_created || req.body.account_updated
         ){
