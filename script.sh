@@ -1,13 +1,8 @@
+#!/bin/bash
 
-environment_vars = [
-      "DEBIAN_FRONTEND=noninteractive",
-      "CHECKPOINT_DISABLE=1"
-    ]
+yum check-update # check for updates to system
+sudo yum update # updates system
 
+# sudo yum -y install nginx
 
-inline = [
-      "sudo apt-get update",
-      "sudo apt-get upgrade -y",
-      "sudo apt-get install nginx -y",
-      "sudo apt-get clean"
-    ]
+sudo amazon-linux-extras install -y nginx1

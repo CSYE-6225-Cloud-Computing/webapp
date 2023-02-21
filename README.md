@@ -26,7 +26,7 @@ packer fmt <filename>
 packer validate <filename>
 
 // run the packer to create AMI
-build packer <filename>
+AWS_PROFILE=dev packer build aws_ami.pkr.hcl
 ```
 
 ### commands that gets executed as part of Packer AMI
