@@ -29,13 +29,6 @@ jobs:
           source: .
           destination: .
 
-      - name: Packer init
-        uses: hashicorp/packer-github-actions@master
-        with:
-          command: init
-          target: aws_ami.pkr.hcl
-          working_directory: .
-
       - name: Packer build
         uses: hashicorp/packer-github-actions@master
         with:
