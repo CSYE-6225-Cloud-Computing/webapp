@@ -70,6 +70,11 @@ const add = async (req, res) => {
 // method to be executed on GET method call
 const retrieve = async (req, res) => {
     // check if Auth Block exists in the request
+
+    if(isNaN(req.params.id)){
+        return res.status(400).json('Bad request');
+    }
+
     if(!req.get('Authorization')){
         return res.status(401).send('Unauthorized')
     }
@@ -92,6 +97,10 @@ const retrieve = async (req, res) => {
 
 // Update method to be called on PUT method call
 const update = async (req, res) => {
+
+    if(isNaN(req.params.id)){
+        return res.status(400).json('Bad request');
+    }
 
     if(!req.get('Authorization')){
         return res.status(401).send('Unauthorized')

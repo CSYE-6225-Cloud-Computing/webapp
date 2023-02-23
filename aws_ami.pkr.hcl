@@ -20,7 +20,7 @@ variable "subnet_id" {
 
 variable "profile" {
   type    = string
-  default = "demo"
+  default = "dev"
 }
 
 variable "users" {
