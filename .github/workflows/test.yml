@@ -31,5 +31,5 @@ jobs:
     - run: npm test
     - run: zip -r webapp.zip *.js *.json
     - run: unzip -l webapp.zip
-    - run: packer fmt -check ../packer/aws_ami.pkr.hcl
-    - run: packer validate ../packer/aws_ami.pkr.hcl
+    - run: packer fmt -check ../../packer/aws_ami.pkr.hcl
+    - run: packer validate ../../packer/aws_ami.pkr.hcl
