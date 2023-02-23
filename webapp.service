@@ -1,0 +1,16 @@
+[Unit]
+Description=webapp
+After=multi-user.target
+
+[Service]
+ExecStart=/usr/bin/node /home/ec2-user/webapp/webapp/server.js
+Restart=always
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=webapp-server-log
+User=ec2-user
+EnvironmentFile=/home/ec2-user/webapp/app.env
+
+[Install]
+WantedBy=multi-user.target
