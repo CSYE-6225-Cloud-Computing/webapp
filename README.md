@@ -132,7 +132,6 @@ POST /v1/user
     "date_last_updated": "2023-02-06T04:45:26.147Z",
     "owner_user_id": 1
 }
-
 ```
 
 
