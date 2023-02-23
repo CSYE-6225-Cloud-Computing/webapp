@@ -2,7 +2,7 @@
 
 ## CSYE 6225: Network Structures and Cloud Computing
 
-Milestone: Assignment 02 </br>
+Milestone: Assignment 04 </br>
 Developer - SaiMahith Chigurupati </br>
 NUID - 002700539 </br>
 Email - chigurupati.sa@northeastern.edu
@@ -14,6 +14,23 @@ Tools required to run the project :
 - pgAdmin (optional)
 
 ## Instructions to run the Project:
+
+```
+// initialize packer
+packer init <filename>
+
+// format the packer file 
+packer fmt <filename>
+
+// validate the hcl file
+packer validate <filename>
+
+// run the packer to create AMI
+AWS_PROFILE=dev packer build aws_ami.pkr.hcl
+```
+
+### commands that gets executed as part of Packer AMI
+
 ``` JavaScript
 //to install dependencies
 npm i --save 
