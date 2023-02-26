@@ -25,4 +25,21 @@ function uploadFile(file) {
     return s3.upload(uploadParams).promise()
 }
 
-exports.uploadFile = uploadFile
+function deleteFile(file) {
+    //const fileStream = fs.createReadStream(file.path)
+
+    const uploadParams = {
+        Bucket: bucketName,
+        Key: file
+    }
+
+    return s3.deleteObject(uploadParams).promise()
+    
+}
+
+
+module.exports = {
+    uploadFile,
+    deleteFile
+}
+

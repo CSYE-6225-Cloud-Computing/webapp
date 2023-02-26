@@ -6,7 +6,11 @@ const Images = db.images
 const User = db.users
 const Products = db.products
 
-const {uploadFile} = require('../../s3')
+const {uploadFile, deleteFile} = require('../../s3')
+
+const fs = require('fs')
+const util = require('util')
+const unlinkFile = util.promisify(fs.unlink)
 
 const uploadImage = async (req,res) => {
 
@@ -26,6 +30,7 @@ const uploadImage = async (req,res) => {
         }
 
         const result = await uploadFile(req.file)
+        await unlinkFile(req.file.path)
 
         var date = moment().tz("America/New_York").format('YYYY-MM-DDTHH:mm:ss.sss')
         
@@ -119,6 +124,9 @@ const deleteImage = async (req,res) => {
 
         //check if product exist and delete
         if(image != null){
+
+            await deleteFile(image.file_name)
+
             await Images.destroy({where: { image_id: req.params.image }})
             return res.status(204).send()
         }else{
