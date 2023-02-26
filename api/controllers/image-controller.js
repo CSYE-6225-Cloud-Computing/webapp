@@ -6,6 +6,7 @@ const Images = db.images
 const User = db.users
 const Products = db.products
 
+const {uploadFile} = require('../../s3')
 
 const uploadImage = async (req,res) => {
 
@@ -24,14 +25,16 @@ const uploadImage = async (req,res) => {
             return res.status(400).send('Bad request')
         }
 
-        var date = moment().tz("America/New_York").format('YYYY-MM-DDTHH:mm:ss.sss')
+        const result = await uploadFile(req.file)
 
+        var date = moment().tz("America/New_York").format('YYYY-MM-DDTHH:mm:ss.sss')
+        
         // structuring JSON object with Info
         let newImage = {
             product_id: req.params.id,
             file_name: req.file.filename,
             date_created: date,
-            s3_bucket_path : "req.body.s3_bucket_path"
+            s3_bucket_path : result.Location
         }
 
         const image = await Images.create(newImage)
