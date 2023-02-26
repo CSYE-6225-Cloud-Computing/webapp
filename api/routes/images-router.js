@@ -2,13 +2,16 @@
 
 const imageController = require('../controllers/image-controller.js')
 
+const multer = require('multer');
+const upload = multer({dest:'files/uploads'})
+
 const router = require('express').Router()
 
 //Route for get list of all images method
 router.get('/product/:id/image', imageController.getAllImages)
 
 //Route for post image method
-router.post('/product/:id/image', imageController.uploadImage)
+router.post('/product/:id/image',upload.single('image'), imageController.uploadImage)
 
 //Route for get image method
 router.get('/product/:id/image/:image', imageController.getImage)

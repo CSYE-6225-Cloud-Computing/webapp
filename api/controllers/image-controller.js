@@ -20,7 +20,7 @@ const uploadImage = async (req,res) => {
     if(!isNaN(authenticated)){
 
         // check if request body has all the necessary information
-        if(Object.keys(req.body).length != 2 || !req.body.file_name || !req.body.s3_bucket_path ){
+        if(!req.file){
             return res.status(400).send('Bad request')
         }
 
@@ -29,9 +29,9 @@ const uploadImage = async (req,res) => {
         // structuring JSON object with Info
         let newImage = {
             product_id: req.params.id,
-            file_name: req.body.file_name,
+            file_name: req.file.filename,
             date_created: date,
-            s3_bucket_path : req.body.s3_bucket_path
+            s3_bucket_path : "req.body.s3_bucket_path"
         }
 
         const image = await Images.create(newImage)
