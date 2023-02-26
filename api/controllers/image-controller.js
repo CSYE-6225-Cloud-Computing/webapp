@@ -1,0 +1,145 @@
+const bcrypt = require('bcrypt')
+const moment = require('moment')
+const db = require('../models')
+
+const Images = db.images
+const User = db.users
+const Products = db.products
+
+
+const uploadImage = async (req,res) => {
+    var date = moment().tz("America/New_York").format('YYYY-MM-DDTHH:mm:ss.sss')
+
+    // structuring JSON object with Info
+    let newImage = {
+        product_id: req.body.product_id,
+        file_name: req.body.file_name,
+        date_created: date,
+        s3_bucket_path : req.body.s3_bucket_path
+    }
+
+    const image = await Images.create(newImage)
+
+    // retrieving back the created user to send it back in response
+    //let response = await Images.findOne({where: { image_id: req.body.image_id }})
+    return res.status(201).send(image)
+}
+
+// method to be executed on GET method call
+const getImage = async (req, res) => {
+
+    if(isNaN(req.params.id) || isNaN(req.params.image) ){
+        return res.status(400).json('Bad request');
+    }
+
+    //check if auth block exist in request
+    if(!req.get('Authorization')){
+        return res.status(401).send('Unauthorized')
+    }
+
+    //decode auth
+    const authenticated = await authenticate(req,res)
+
+    if(!isNaN(authenticated)){
+
+        let image = await Images.findOne({where: { image_id: req.params.image }})
+
+        //check if product exist
+        if(image != null){
+            return res.status(200).send(image)
+        }else{
+            return res.status(404).send("Image Not Found")
+        }
+    }
+}
+
+const getAllImages = async (req, res) => {
+
+    if(isNaN(req.params.id)){
+        return res.status(400).json('Bad request');
+    }
+
+    //check if auth block exist in request
+    if(!req.get('Authorization')){
+        return res.status(401).send('Unauthorized')
+    }
+
+    //decode auth
+    const authenticated = await authenticate(req,res)
+
+    if(!isNaN(authenticated)){
+
+        let images = await Images.findAll({where: { product_id: req.params.id }})
+
+        //check if product exist
+        if(images != null){
+            return res.status(200).send(images)
+        }else{
+            return res.status(404).send("Not Found")
+        }
+    }
+}
+
+const deleteImage = async (req,res) => {
+
+    if(isNaN(req.params.id) || isNaN(req.params.image) ){
+        return res.status(400).json('Bad request');
+    }
+
+    //check if auth block exist in request
+    if(!req.get('Authorization')){
+        return res.status(401).send('Unauthorized')
+    }
+
+    //decode auth
+    const authenticated = await authenticate(req,res)
+
+    if(!isNaN(authenticated)){
+        
+        // retrieve product data based on parameter id
+        let image = await Images.findOne({where: { image_id: req.params.image }})
+
+        //check if product exist and delete
+        if(image != null){
+            await Images.destroy({where: { image_id: req.params.image }})
+            return res.status(204).send()
+        }else{
+            return res.status(404).send("Image Not Found")
+        }
+    }
+    
+}
+
+// function to authenticate a user
+async function authenticate (req, res) {
+    // decrypt auth
+    var basicAuth = Buffer.from(req.get('Authorization').split(' ')[1], 'base64').toString().split(':')
+    let user = await User.findOne({where: { username: basicAuth[0] }})
+
+    if(user){
+        const authenticated = await bcrypt.compare(basicAuth[1], user.password)
+        if(authenticated){
+            let product = await Products.findOne({where: { id: req.params.id }})
+            if(product != null){
+                if(product.owner_user_id == user.id){
+                    return user.id
+                }else{
+                    return res.status(403).send('Forbidden') 
+                }
+            }else{
+                return res.status(404).send('Product Not Found')
+            }
+        }else{
+            return res.status(401).send('Unauthorized')
+        }
+    }else{
+        return res.status(401).send('Unauthorized')
+    }
+}
+
+module.exports = {
+    getImage,
+    deleteImage,
+    uploadImage,
+    getAllImages
+}

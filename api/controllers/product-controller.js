@@ -5,7 +5,6 @@ const db = require('../models')
 const User = db.users
 const Products = db.products
 
-
 // will be called for POST Method
 const add = async (req, res) => {
 
