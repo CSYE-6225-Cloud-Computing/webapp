@@ -8,21 +8,36 @@ const Products = db.products
 
 
 const uploadImage = async (req,res) => {
-    var date = moment().tz("America/New_York").format('YYYY-MM-DDTHH:mm:ss.sss')
 
-    // structuring JSON object with Info
-    let newImage = {
-        product_id: req.body.product_id,
-        file_name: req.body.file_name,
-        date_created: date,
-        s3_bucket_path : req.body.s3_bucket_path
+     //check if Auth block exist in request
+     if(!req.get('Authorization')){
+        return res.status(401).send('Unauthorized')
     }
 
-    const image = await Images.create(newImage)
+    // check if user is authorized
+    const authenticated = await authenticate(req,res)
 
-    // retrieving back the created user to send it back in response
-    //let response = await Images.findOne({where: { image_id: req.body.image_id }})
-    return res.status(201).send(image)
+    if(!isNaN(authenticated)){
+
+        // check if request body has all the necessary information
+        if(Object.keys(req.body).length != 2 || !req.body.file_name || !req.body.s3_bucket_path ){
+            return res.status(400).send('Bad request')
+        }
+
+        var date = moment().tz("America/New_York").format('YYYY-MM-DDTHH:mm:ss.sss')
+
+        // structuring JSON object with Info
+        let newImage = {
+            product_id: req.params.id,
+            file_name: req.body.file_name,
+            date_created: date,
+            s3_bucket_path : req.body.s3_bucket_path
+        }
+
+        const image = await Images.create(newImage)
+
+        return res.status(201).send(image)
+    }
 }
 
 // method to be executed on GET method call
@@ -119,19 +134,26 @@ async function authenticate (req, res) {
     if(user){
         const authenticated = await bcrypt.compare(basicAuth[1], user.password)
         if(authenticated){
-            let product = await Products.findOne({where: { id: req.params.id }})
-            if(product != null){
-                if(product.owner_user_id == user.id){
-                    return user.id
+
+            if(req.params.id){
+                let product = await Products.findOne({where: { id: req.params.id }})
+                if(product != null){
+                    if(product.owner_user_id == user.id){
+                        return user.id
+                    }else{
+                        return res.status(403).send('Forbidden') 
+                    }
                 }else{
-                    return res.status(403).send('Forbidden') 
+                    return res.status(404).send('Product Not Found')
                 }
             }else{
-                return res.status(404).send('Product Not Found')
+                return user.id;
             }
+            
         }else{
             return res.status(401).send('Unauthorized')
         }
+
     }else{
         return res.status(401).send('Unauthorized')
     }
