@@ -14,6 +14,7 @@ jobs:
         SOURCE_AMI: ${{ secrets.SOURCE_AMI }}
         SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
         DEFAULT_SUBNET_ID: ${{ secrets.DEFAULT_SUBNET_ID }}
+        PACKER_LOG: 1
 
     strategy:
       matrix:
