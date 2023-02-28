@@ -38,14 +38,14 @@ Description=webapp
 After=multi-user.target
 
 [Service]
-ExecStart=/usr/bin/node /home/ec2-user/webapp-main/server.js
+ExecStart=/usr/bin/node /home/ec2-user/webapp/server.js
 Restart=always
 RestartSec=10
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=webapp
 User=ec2-user
-EnvironmentFile=/home/ec2-user/app.env
+EnvironmentFile=/home/ec2-user/webapp/app.env
 
 [Install]
 WantedBy=multi-user.target
@@ -55,4 +55,4 @@ pwd
 
 ls
 
-sudo cp -R "/home/ec2-user/webapp.service" "/etc/systemd/system/"
+sudo cp -R "/home/ec2-user/webapp/webapp.service" "/etc/systemd/system/"
