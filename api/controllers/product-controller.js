@@ -4,6 +4,10 @@ const db = require('../models')
 
 const User = db.users
 const Products = db.products
+const Images = db.images
+
+const imageController = require('./image-controller.js')
+const {deleteFile} = require('../../s3')
 
 // will be called for POST Method
 const add = async (req, res) => {
@@ -102,6 +106,15 @@ const remove = async (req,res) => {
         
         // retrieve product data based on parameter id
         let product = await Products.findOne({where: { id: req.params.id }})
+
+        let images = await Images.findAll({where: { product_id: req.params.id }})
+
+        for(img in images){
+            if(img != null){
+                await deleteFile(img.file_name)
+                await Images.destroy({where: { image_id: req.params.image }})
+            }
+        }
 
         //check if product exist and delete
         if(product != null){
