@@ -12,7 +12,7 @@ unzip webapp.zip
 cd webapp
 npm i --save
 
-touch app.env
+touch ./webapp/app.env
 
 cat >> /etc/systemd/system/webapp.service <<'EOF'
 [Unit]
@@ -27,7 +27,7 @@ StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=webapp
 User=ec2-user
-EnvironmentFile=/home/ec2-user/app.env
+EnvironmentFile=/home/ec2-user/webapp/app.env
 
 [Install]
 WantedBy=multi-user.target
