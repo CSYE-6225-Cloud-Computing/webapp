@@ -33,4 +33,7 @@ EnvironmentFile=/home/ec2-user/webapp/app.env
 WantedBy=multi-user.target
 EOF
 
+ls
+
 sudo cp -R "/home/ec2-user/webapp/webapp.service" "/etc/systemd/system/"
+
