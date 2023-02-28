@@ -1,6 +1,6 @@
 # webapp
 
-## CSYE 6225: Network Structures and Cloud Computing
+## CSYE 6225: Network Structures and Cloud Computing Course
 
 Milestone: Assignment 04 </br>
 Developer - SaiMahith Chigurupati </br>
