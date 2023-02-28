@@ -16,12 +16,6 @@ pwd
 
 ls
 
-cd webapp
-
-pwd
-
-ls
-
 npm i --save
 
 ls
@@ -38,14 +32,14 @@ Description=webapp
 After=multi-user.target
 
 [Service]
-ExecStart=/usr/bin/node /home/ec2-user/webapp/server.js
+ExecStart=/usr/bin/node /home/ec2-user/server.js
 Restart=always
 RestartSec=10
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=webapp
 User=ec2-user
-EnvironmentFile=/home/ec2-user/webapp/app.env
+EnvironmentFile=/home/ec2-user/app.env
 
 [Install]
 WantedBy=multi-user.target
@@ -55,4 +49,4 @@ pwd
 
 ls
 
-sudo cp -R "/home/ec2-user/webapp/webapp.service" "/etc/systemd/system/"
+sudo cp -R "/home/ec2-user/webapp.service" "/etc/systemd/system/"
