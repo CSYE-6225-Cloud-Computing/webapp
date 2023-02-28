@@ -12,9 +12,9 @@ unzip webapp.zip
 cd webapp
 npm i --save
 
-touch ./webapp/app.env
+touch app.env
 
-cat >> /etc/systemd/system/webapp.service <<'EOF'
+cat >> webapp.service <<'EOF'
 [Unit]
 Description=webapp
 After=multi-user.target
@@ -33,9 +33,4 @@ EnvironmentFile=/home/ec2-user/webapp/app.env
 WantedBy=multi-user.target
 EOF
 
-sudo systemctl daemon-reload
-
-sudo systemctl enable webapp.service
-sudo systemctl start webapp.service
-
-sudo systemctl status webapp.service
+sudo cp -R "/home/ec2-user/webapp/webapp.service" "/etc/systemd/system/"
