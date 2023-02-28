@@ -8,6 +8,7 @@ lerna-debug.log*
 
 # mac files
 .DS_Store
+uploads/
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
