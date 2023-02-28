@@ -10,7 +10,9 @@ sudo yum install -y nodejs
 
 pwd
 
-unzip webapp.zip
+unzip webapp.zip -d webapp
+
+cd webapp
 
 pwd
 
