@@ -14,8 +14,6 @@ cd webapp
 
 npm i --save
 
-touch app.env
-
 cat >> webapp.service <<'EOF'
 [Unit]
 Description=webapp

@@ -8,10 +8,6 @@ const Products = db.products
 
 const {uploadFile, deleteFile} = require('../../s3')
 
-const fs = require('fs')
-const util = require('util')
-const unlinkFile = util.promisify(fs.unlink)
-
 const uploadImage = async (req,res) => {
 
      //check if Auth block exist in request
@@ -31,7 +27,6 @@ const uploadImage = async (req,res) => {
 
         const result = await uploadFile(req.file)
         console.log(result)
-        //await unlinkFile(req.file.path)
 
         var date = moment().tz("America/New_York").format('YYYY-MM-DDTHH:mm:ss.sss')
         
