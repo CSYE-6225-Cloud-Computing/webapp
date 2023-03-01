@@ -15,18 +15,23 @@ const uploadImage = async (req,res) => {
         return res.status(401).send('Unauthorized')
     }
 
+    if(isNaN(req.params.id) || !req.file){
+        return res.status(400).send('Bad request')
+    }
+
     // check if user is authorized
     const authenticated = await authenticate(req,res)
 
     if(!isNaN(authenticated)){
 
+        const extension = req.file.mimetype
+
         // check if request body has all the necessary information
-        if(!req.file){
+        if( extension!= "image/jpeg" && extension != "image/png"){
             return res.status(400).send('Bad request')
         }
 
         const result = await uploadFile(req.file)
-        console.log(result)
 
         var date = moment().tz("America/New_York").format('YYYY-MM-DDTHH:mm:ss.sss')
         

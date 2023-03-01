@@ -2,7 +2,7 @@
 
 ## CSYE 6225: Network Structures and Cloud Computing Course
 
-Milestone: Assignment 04 </br>
+Milestone: Assignment 05 </br>
 Developer - SaiMahith Chigurupati </br>
 NUID - 002700539 </br>
 Email - chigurupati.sa@northeastern.edu
@@ -20,13 +20,13 @@ Tools required to run the project :
 packer init <filename>
 
 // format the packer file 
-packer fmt <filename>
+packer fmt aws_ami.pkr.hcl
 
 // validate the hcl file
-packer validate <filename>
+packer validate aws_ami.pkr.hcl
 
 // run the packer to create AMI
-AWS_PROFILE=dev packer build aws_ami.pkr.hcl
+packer build aws_ami.pkr.hcl
 ```
 
 ### commands that gets executed as part of Packer AMI
@@ -134,5 +134,61 @@ POST /v1/user
 }
 ```
 
+## Endpoint URLs for Images Schema
 
+<a href = "https://app.swaggerhub.com/apis-docs/csye6225-webapp/cloud-native-webapp/spring2023-a5">Swagger v02</a>
+
+``` JavaScript
+
+//POST Method URL for images
+/v1/product/{product_id}/image
+
+//GET Method URL for List of all images
+/v1/product/{product_id}/image
+
+//GET Method URL for a single image
+/v1/product/{product_id}/image/{image_id}
+
+//DELETE Method URL for image
+/v1/product/{product_id}/image/{image_id}
+
+```
+
+## Sample JSON Request for GET Method
+``` JSON
+{
+    "image_id": 1,
+    "product_id": 1,
+    "file_name": "Mahith_2023-03-01T02:08:54.5454.jpg",
+    "date_created": "2023-03-01T02:08:55.5555",
+    "s3_bucket_path": "https://example-bucket.s3.amazonaws.com/example.jpg"
+}
+```
+
+## Sample JSON Response for GET All Method
+``` JSON
+[
+  {
+    "image_id": 1,
+    "product_id": 1,
+    "file_name": "Mahith_2023-03-01T02:08:54.5454.jpg",
+    "date_created": "2023-03-01T02:08:55.5555",
+    "s3_bucket_path": "https://example-bucket.s3.amazonaws.com/example1.jpg"
+  },
+  {
+    "image_id": 2,
+    "product_id": 1,
+    "file_name": "Mahith_2023-03-01T02:08:54.5454.jpg",
+    "date_created": "2023-03-01T02:08:55.5555",
+    "s3_bucket_path": "https://example-bucket.s3.amazonaws.com/example2.jpg"
+  },
+  {
+    "image_id": 3,
+    "product_id": 1,
+    "file_name": "Mahith_2023-03-01T02:08:54.5454.jpg",
+    "date_created": "2023-03-01T02:08:55.5555",
+    "s3_bucket_path": "https://example-bucket.s3.amazonaws.com/example3.jpg"
+  }
+]
+```
 

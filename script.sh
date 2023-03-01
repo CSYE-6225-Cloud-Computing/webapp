@@ -10,7 +10,7 @@ sudo yum install -y nodejs
 
 unzip webapp.zip -d webapp
 
-cd webapp
+cd webapp || { echo "cd failed"; }
 
 npm i --save
 

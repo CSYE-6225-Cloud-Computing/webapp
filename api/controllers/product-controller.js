@@ -108,8 +108,8 @@ const remove = async (req,res) => {
         let product = await Products.findOne({where: { id: req.params.id }})
 
         let images = await Images.findAll({where: { product_id: req.params.id }})
-
-        for(img in images){
+        
+        for(let img of images){
             if(img != null){
                 await deleteFile(img.file_name)
                 await Images.destroy({where: { product_id: req.params.id }})

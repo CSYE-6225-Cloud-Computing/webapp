@@ -1,5 +1,7 @@
 require('dotenv').config() 
+const path = require('path');
 const S3 = require('aws-sdk/clients/s3')
+const moment = require('moment')
 
 const bucketName = process.env.AWS_BUCKET_NAME
 const region = process.env.AWS_BUCKET_REGION
@@ -13,11 +15,15 @@ const s3 = new S3({
 })
 
 function uploadFile(file) {
+    const extension = path.parse(file.originalname).ext
+    const filename = path.parse(file.originalname).name
+
+    var date = moment().tz("America/New_York").format('YYYY-MM-DDTHH:mm:ss.sss')
 
     const uploadParams = {
         Bucket: bucketName,
         Body: file.buffer,
-        Key: file.originalname + '-' + Date.now(),
+        Key: filename + '_' + date + extension,
         ContentType: file.mimetype
     }
 
