@@ -3,7 +3,8 @@
 const imageController = require('../controllers/image-controller.js')
 
 const multer = require('multer');
-const upload = multer({dest:'uploads'})
+const storage = multer.memoryStorage()
+const upload = multer({storage: storage})
 
 const router = require('express').Router()
 
