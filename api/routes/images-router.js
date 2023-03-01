@@ -20,4 +20,13 @@ router.get('/product/:id/image/:image', imageController.getImage)
 //Route for DELETE image method
 router.delete('/product/:id/image/:image', imageController.deleteImage)
 
+// Error handling middleware
+router.use(function (err, req, res, next) {
+    if (err instanceof multer.MulterError) {
+      res.status(400).send('Error: ' + err.message);
+    } else {
+      next(err);
+    }
+  });
+
 module.exports = router
