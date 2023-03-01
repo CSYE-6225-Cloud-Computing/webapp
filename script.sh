@@ -8,25 +8,11 @@ sudo yum install -y gcc-c++ make
 curl -sL https://rpm.nodesource.com/setup_16.x | sudo -E bash -
 sudo yum install -y nodejs
 
-pwd
-
 unzip webapp.zip -d webapp
-
-cd webapp
-
-pwd
-
-ls
 
 npm i --save
 
-ls
-
 touch app.env
-
-pwd
-
-ls
 
 cat >> webapp.service <<'EOF'
 [Unit]
@@ -46,9 +32,5 @@ EnvironmentFile=/home/ec2-user/webapp/app.env
 [Install]
 WantedBy=multi-user.target
 EOF
-
-pwd
-
-ls
 
 sudo cp -R "/home/ec2-user/webapp/webapp.service" "/etc/systemd/system/"

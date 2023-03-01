@@ -30,14 +30,15 @@ const uploadImage = async (req,res) => {
         }
 
         const result = await uploadFile(req.file)
-        await unlinkFile(req.file.path)
+        console.log(result)
+        //await unlinkFile(req.file.path)
 
         var date = moment().tz("America/New_York").format('YYYY-MM-DDTHH:mm:ss.sss')
         
         // structuring JSON object with Info
         let newImage = {
             product_id: req.params.id,
-            file_name: req.file.filename,
+            file_name: result.key,
             date_created: date,
             s3_bucket_path : result.Location
         }

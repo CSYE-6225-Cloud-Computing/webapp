@@ -112,7 +112,7 @@ const remove = async (req,res) => {
         for(img in images){
             if(img != null){
                 await deleteFile(img.file_name)
-                await Images.destroy({where: { image_id: req.params.image }})
+                await Images.destroy({where: { product_id: req.params.id }})
             }
         }
 

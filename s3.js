@@ -14,12 +14,14 @@ const s3 = new S3({
 })
 
 function uploadFile(file) {
-    const fileStream = fs.createReadStream(file.path)
+    //const fileStream = fs.createReadStream(file.path)
+    //console.log(file)
 
     const uploadParams = {
         Bucket: bucketName,
-        Body: fileStream,
-        Key: file.filename
+        Body: file.buffer,
+        Key: file.originalname + '-' + Date.now(),
+        ContentType: file.mimetype
     }
 
     return s3.upload(uploadParams).promise()
