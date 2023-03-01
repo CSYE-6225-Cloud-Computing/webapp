@@ -10,6 +10,8 @@ sudo yum install -y nodejs
 
 unzip webapp.zip -d webapp
 
+cd webapp
+
 npm i --save
 
 touch app.env
