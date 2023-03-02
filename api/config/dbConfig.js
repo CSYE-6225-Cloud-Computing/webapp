@@ -1,4 +1,7 @@
 //Standard DB Config file for postgres
+require('dotenv').config() 
+
+
 console.log();
 module.exports = {
     HOST: `${process.env.DB_HOST}`,

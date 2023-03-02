@@ -111,7 +111,7 @@ const remove = async (req,res) => {
         
         for(let img of images){
             if(img != null){
-                await deleteFile(img.file_name)
+                await deleteFile(img.s3_bucket_path)
                 await Images.destroy({where: { product_id: req.params.id }})
             }
         }
