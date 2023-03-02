@@ -31,16 +31,16 @@ const uploadImage = async (req,res) => {
             return res.status(400).send('Bad request')
         }
 
-        const result = await uploadFile(req.file)
+        const result = await uploadFile(req)
 
         var date = moment().tz("America/New_York").format('YYYY-MM-DDTHH:mm:ss.sss')
         
         // structuring JSON object with Info
         let newImage = {
             product_id: req.params.id,
-            file_name: result.key,
+            file_name: req.file.originalname,
             date_created: date,
-            s3_bucket_path : result.Location
+            s3_bucket_path : result.key,
         }
 
         const image = await Images.create(newImage)
@@ -126,7 +126,7 @@ const deleteImage = async (req,res) => {
         //check if product exist and delete
         if(image != null){
 
-            await deleteFile(image.file_name)
+            await deleteFile(image.s3_bucket_path)
 
             await Images.destroy({where: { image_id: req.params.image }})
             return res.status(204).send()
