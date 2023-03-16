@@ -149,14 +149,15 @@ async function authenticate (req, res) {
 
             if(req.params.id){
                 let product = await Products.findOne({where: { id: req.params.id }})
-                if(product != null){
+                let image = await Images.findOne({where: { product_id: req.params.id, image_id: req.params.image }});
+                if(product != null || image != null){
                     if(product.owner_user_id == user.id){
                         return user.id
                     }else{
                         return res.status(403).send('Forbidden') 
                     }
                 }else{
-                    return res.status(404).send('Product Not Found')
+                    return res.status(404).send('Not Found')
                 }
             }else{
                 return user.id;
