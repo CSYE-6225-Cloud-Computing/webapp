@@ -72,7 +72,7 @@ const getImage = async (req, res) => {
         if(image != null){
             return res.status(200).send(image)
         }else{
-            return res.status(404).send("Image Not Found")
+            return res.status(404).send("Not Found")
         }
     }
 }
@@ -131,7 +131,7 @@ const deleteImage = async (req,res) => {
             await Images.destroy({where: { image_id: req.params.image }})
             return res.status(204).send()
         }else{
-            return res.status(404).send("Image Not Found")
+            return res.status(404).send("Not Found")
         }
     }
     
@@ -149,8 +149,14 @@ async function authenticate (req, res) {
 
             if(req.params.id){
                 let product = await Products.findOne({where: { id: req.params.id }})
-                let image = await Images.findOne({where: { product_id: req.params.id, image_id: req.params.image }});
-                if(product != null && image != null){
+                if(req.params.image){
+                    let image = await Images.findOne({where: { product_id: req.params.id, image_id: req.params.image }});
+                    if(image == null){
+                        return res.status(404).send('Not Found')
+                    }
+                }
+                
+                if(product != null){
                     if(product.owner_user_id == user.id){
                         return user.id
                     }else{
