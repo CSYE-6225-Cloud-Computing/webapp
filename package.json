@@ -15,6 +15,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.295.0",
+    "@aws-sdk/lib-storage": "^3.295.0",
     "ajv": "^8.12.0",
     "aws-sdk": "^2.1323.0",
     "bcrypt": "^5.1.0",
@@ -32,7 +34,8 @@
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.28.0",
     "spec": "^1.0.1",
-    "supertest": "^6.3.3"
+    "supertest": "^6.3.3",
+    "winston": "^3.8.2"
   },
   "devDependencies": {
     "@vercel/ncc": "^0.36.1"
