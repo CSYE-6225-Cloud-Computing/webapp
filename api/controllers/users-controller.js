@@ -2,6 +2,8 @@ const bcrypt = require('bcrypt')
 const moment = require('moment')
 const logger = require('../../logger')
 
+const client = require('../../metrics')
+
 const db = require('../models')
 const sequelize  = require('../models/index')
 
@@ -76,6 +78,8 @@ const add = async (req, res) => {
 
         logger.info(`user ${username} created with id ${response.id}`);
 
+        client.increment('myendpoint.requests.addUser.http.post')
+
         return res.status(201).send(response)
     }
 
@@ -113,6 +117,8 @@ const retrieve = async (req, res) => {
         if(user != null){
 
             logger.info(`GET: Success`);
+
+            client.increment('myendpoint.requests.getUser.http.get')
 
             return res.status(200).send(user)
         }
@@ -171,6 +177,8 @@ const update = async (req, res) => {
             }
 
             logger.error("PUT: DB Update Failed");
+
+            client.increment('myendpoint.requests.updateUser.http.put')
 
             return res.status(400).send('Bad request')
         }
