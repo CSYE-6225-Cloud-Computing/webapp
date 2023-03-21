@@ -1,4 +1,4 @@
-var StatsD = require('statsd');
+var StatsD = require('node-statsd');
 
 var client = new StatsD({
   host: 'localhost', 
