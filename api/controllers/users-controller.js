@@ -14,6 +14,8 @@ const check = async (req,res) =>  {
 
     logger.info("hitting status check");
 
+    client.increment('myendpoint.requests.check.http.get')
+
     sequelize.sequelize.authenticate()
     .then(() => {
         res.send('Connection established successfully.');
@@ -24,6 +26,8 @@ const check = async (req,res) =>  {
 const add = async (req, res) => {
 
     logger.info("POST: hitting create a user");
+
+    client.increment('myendpoint.requests.addUser.http.post')
 
     // check if request body exists
     if(Object.keys(req.body).length === 0){
@@ -78,8 +82,6 @@ const add = async (req, res) => {
 
         logger.info(`user ${username} created with id ${response.id}`);
 
-        client.increment('myendpoint.requests.addUser.http.post')
-
         return res.status(201).send(response)
     }
 
@@ -90,6 +92,8 @@ const add = async (req, res) => {
 
 // method to be executed on GET method call
 const retrieve = async (req, res) => {
+
+    client.increment('myendpoint.requests.getUser.http.get')
 
     // check if Auth Block exists in the request
     if(isNaN(req.params.id)){
@@ -118,8 +122,6 @@ const retrieve = async (req, res) => {
 
             logger.info(`GET: Success`);
 
-            client.increment('myendpoint.requests.getUser.http.get')
-
             return res.status(200).send(user)
         }
     }
@@ -128,6 +130,8 @@ const retrieve = async (req, res) => {
 
 // Update method to be called on PUT method call
 const update = async (req, res) => {
+
+    client.increment('myendpoint.requests.updateUser.http.put')
 
     if(isNaN(req.params.id)){
 
@@ -171,14 +175,12 @@ const update = async (req, res) => {
 
             if(user == 1){
 
-                logger.info(`PUT: Updated user with ID: ${req.param.id}`);
+                logger.info(`PUT: Updated user with ID: ${req.params.id}`);
 
                 return res.status(204).send(user)
             }
 
             logger.error("PUT: DB Update Failed");
-
-            client.increment('myendpoint.requests.updateUser.http.put')
 
             return res.status(400).send('Bad request')
         }

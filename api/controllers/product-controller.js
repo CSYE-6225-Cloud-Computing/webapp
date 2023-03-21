@@ -2,6 +2,9 @@ const bcrypt = require('bcrypt')
 const moment = require('moment')
 const db = require('../models')
 
+const logger = require('../../logger')
+const client = require('../../metrics')
+
 const User = db.users
 const Products = db.products
 const Images = db.images
@@ -12,8 +15,15 @@ const {deleteFile} = require('../../s3')
 // will be called for POST Method
 const add = async (req, res) => {
 
+    logger.info("POST: hitting create a product");
+
+    client.increment('myendpoint.requests.createProduct.http.post')
+
     //check if Auth block exist in request
     if(!req.get('Authorization')){
+
+        logger.error("POST: Failed to provide credentials to authenticate");
+
         return res.status(401).send('Unauthorized')
     }
 
@@ -37,6 +47,9 @@ const add = async (req, res) => {
                         
             req.body.id || req.body.owner_user_id || req.body.account_created || req.body.account_updated
         ){
+
+            logger.error("POST: Failed due to bad request body: wrong number of arguments passed");
+
             return res.status(400).send('Bad request')
         }
 
@@ -59,12 +72,18 @@ const add = async (req, res) => {
 
         //reject post if product exist already
         if(isSKUExist != null){
+
+            logger.error(`Product with sku: ${req.body.sku} already exists`);
+
             return res.status(400).send("SKU already Exist")
         }else{
             await Products.create(newProduct)
 
             // retrieving back the created user to send it back in response
             let response = await Products.findOne({where: { sku: req.body.sku }})
+
+            logger.info(`POST: Product with ${response.id} created`);
+
             return res.status(201).send(response)
         }
     }
@@ -73,7 +92,14 @@ const add = async (req, res) => {
 // method to be executed on GET method call
 const retrieve = async (req, res) => {
 
+    logger.info("GET: hitting retrieve to get a product");
+
+    client.increment('myendpoint.requests.getProduct.http.get')
+
     if(isNaN(req.params.id)){
+
+        logger.error(`Bad Request: ${req.params.id} is NaN`);
+
         return res.status(400).json('Bad request');
     }
 
@@ -81,8 +107,14 @@ const retrieve = async (req, res) => {
 
     //check if product exist
     if(product != null){
+
+        logger.info(`Product with id: ${product.id} retrieved`);
+
         return res.status(200).send(product)
     }else{
+
+        logger.error(`Product with id: ${req.params.id} Not Found`);
+
         return res.status(404).send("Not Found")
     }
 
@@ -90,12 +122,22 @@ const retrieve = async (req, res) => {
 
 const remove = async (req,res) => {
 
+    logger.info("hitting delete for product")
+
+    client.increment('myendpoint.requests.removeProduct.http.delete')
+
     if(isNaN(req.params.id)){
+
+        logger.error(`Bad Request: ${req.params.id} is NaN`);
+
         return res.status(400).json('Bad request');
     }
 
     //check if auth block exist in request
     if(!req.get('Authorization')){
+
+        logger.error("delete: Failed to provide credentials to authenticate");
+
         return res.status(401).send('Unauthorized')
     }
 
@@ -119,8 +161,14 @@ const remove = async (req,res) => {
         //check if product exist and delete
         if(product != null){
             const product = await Products.destroy({where: { id: req.params.id }})
+
+            logger.info(`Product with id: ${req.params.id} deleted`);
+
             return res.status(204).send()
         }else{
+
+            logger.info(`Product with id: ${req.params.id} not found`);
+
             return res.status(404).send("Not Found")
         }
     }
@@ -130,12 +178,22 @@ const remove = async (req,res) => {
 // Update method to be called on PUT method call
 const update = async (req, res) => {
 
+    logger.info("hitting PUT for product")
+
+    client.increment('myendpoint.requests.updateProduct.http.PUT')
+
     if(isNaN(req.params.id)){
+
+        logger.error(`Bad Request: ${req.params.id} is NaN`);
+
         return res.status(400).json('Bad request');
     }
 
     //check if auth block exist
     if(!req.get('Authorization')){
+
+        logger.error("POST: Failed to provide credentials to authenticate");
+
         return res.status(401).send('Unauthorized')
     }
 
@@ -156,6 +214,9 @@ const update = async (req, res) => {
                     
         req.body.id || req.body.owner_user_id || req.body.account_created || req.body.account_updated
     ){
+
+        logger.error("POST: Failed due to bad request body: wrong number of arguments passed");
+
         return res.status(400).send('Bad request')
     }
 
@@ -163,6 +224,9 @@ const update = async (req, res) => {
         let isSKUExist = await Products.findOne({where: { sku: req.body.sku }})
 
         if(isSKUExist != null && isSKUExist.id != req.params.id){
+
+            logger.error(`Product with sku: ${req.body.sku} already exists`);
+
             return res.status(400).send("SKU already Exist")
         }
 
@@ -181,8 +245,14 @@ const update = async (req, res) => {
             {where: { id: req.params.id }})
 
         if(product == 1){
+
+            logger.info(`Product with id: ${req.params.id} updated`);
+
             return res.status(204).send(product)
         }else{
+
+            logger.info(`Product with id: ${req.params.id} failed to update`);
+
             return res.status(400).send('Bad request')
         }
     }
@@ -192,11 +262,21 @@ const update = async (req, res) => {
 // Update method to be called on PATCH method call
 const replace = async (req, res) => {
 
+    logger.info("hitting PATCH for product")
+
+    client.increment('myendpoint.requests.updateProduct.http.PATCH')
+
     if(isNaN(req.params.id)){
+
+        logger.error(`Bad Request: ${req.params.id} is NaN`);
+
         return res.status(400).json('Bad request');
     }
 
     if(!req.get('Authorization')){
+
+        logger.info("POST: Failed to provide credentials to authenticate");
+
         return res.status(401).send('Unauthorized')
     }
 
@@ -209,6 +289,9 @@ const replace = async (req, res) => {
         //check if req is valid with no unwanted fields
         for (const prop in req.body) {
             if(req.body.hasOwnProperty(prop) && !bodyAllowedList.has(prop)) {
+
+                logger.error(`Bad Request: request body has unnecessary fields`);
+
                 return res.status(400).json('Bad request');
             }
         }
@@ -227,6 +310,9 @@ const replace = async (req, res) => {
                         
             req.body.id || req.body.owner_user_id || req.body.account_created || req.body.account_updated
         ){
+
+            logger.error("POST: Failed due to bad request body: wrong number of arguments passed");
+
             return res.status(400).send('Bad request')
         }
 
@@ -235,6 +321,9 @@ const replace = async (req, res) => {
             let isSKUExist = await Products.findOne({where: { sku: req.body.sku }})
 
             if(isSKUExist != null && isSKUExist.id != req.params.id){
+
+                logger.error(`Product with sku: ${req.body.sku} already exists`);
+
                 return res.status(400).send("SKU already Exist")
             }
         }
@@ -254,8 +343,14 @@ const replace = async (req, res) => {
             {where: { id: req.params.id }})
 
         if(product == 1){
+
+            logger.info(`product with id: ${req.params.id} updated`);
+
             return res.status(204).send(product)
         }else{
+
+            logger.error(`Failed to updated product with id: ${req.params.id}`);
+
             return res.status(400).send('Bad request')
         }
     }

@@ -14,7 +14,7 @@ const productionLogger = () =>{
           myFormat
         ),
         transports: [
-         new transports.File({ filename: './logs/csye6225.log' }),
+         new transports.File({ filename: 'home/ec2-user/webapp/logs/csye6225.log' }),
         ],
       });
 
