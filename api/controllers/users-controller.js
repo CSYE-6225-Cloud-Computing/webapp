@@ -130,7 +130,7 @@ const update = async (req, res) => {
         return res.status(400).json('Bad request');
     }
 
-    logger.info(`PUT: updating the user with ID: ${req.param.id}`);
+    logger.info(`PUT: updating the user with ID: ${req.params.id}`);
 
     if(!req.get('Authorization')){
 
