@@ -54,20 +54,20 @@ rm webapp.service
 # copying the cloud watch agent config to desired location
 # deleteing the file at source because its moved to destination as per previous copy action
 # ------------------------------------------------------------------------------------------------
-sudo yum install amazon-cloudwatch-agent
+sudo yum install amazon-cloudwatch-agent -y
 
 cat >> amazon-cloudwatch-agent.json <<'EOF'
 {
   "agent": {
       "metrics_collection_interval": 10,
-      "logfile": "/var/logs/amazon-cloudwatch-agent.log"
+      "logfile": "/var/log/amazon/amazon-cloudwatch-agent/amazon-cloudwatch-agent.log" 
   },
   "logs": {
       "logs_collected": {
           "files": {
               "collect_list": [
                   {
-                      "file_path": "/var/log/node18/csye6225.log", #**********************************
+                      "file_path": "/home/ec2-user/webapp/logs/csye6225.log",
                       "log_group_name": "csye6225",
                       "log_stream_name": "webapp"
                   }
@@ -88,6 +88,6 @@ cat >> amazon-cloudwatch-agent.json <<'EOF'
 }
 EOF
 
-sudo cp -R "/home/ec2-user/webapp/amazon-cloudwatch-agent.json" "/opt/aws/amazon-cloudwatch-agent/etc/" #***************************
+sudo cp -R "/home/ec2-user/webapp/amazon-cloudwatch-agent.json" "/opt/aws/amazon-cloudwatch-agent/etc/"
 rm amazon-cloudwatch-agent.json
 
