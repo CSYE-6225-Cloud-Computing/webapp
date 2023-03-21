@@ -7,7 +7,12 @@ const moment = require('moment')
 const bucketName = process.env.AWS_BUCKET_NAME
 const region = process.env.AWS_BUCKET_REGION
 
-const s3 = new S3({region})
+const s3 = new S3({
+    // credentials: {
+    //     accessKeyId: process.env.ACCESS_KEY_ID,
+    //     secretAccessKey: process.env.SECRET_ACCESS_KEY
+    // },
+        region})
 
 function uploadFile(req) {
     const file = req.file
