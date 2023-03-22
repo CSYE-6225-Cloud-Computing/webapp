@@ -2,6 +2,8 @@ const bcrypt = require('bcrypt')
 const moment = require('moment')
 const db = require('../models')
 
+const logger = require('../../logger')
+
 const client = require('../../metrics')
 
 const Images = db.images
@@ -26,7 +28,7 @@ const uploadImage = async (req,res) => {
 
     if(isNaN(req.params.id) || !req.file){
 
-        logger.error("POST: Bad Request (File is missing in the body)");
+        logger.error("POST: Bad Request");
 
         return res.status(400).send('Bad request')
     }
@@ -55,14 +57,14 @@ const uploadImage = async (req,res) => {
             product_id: req.params.id,
             file_name: req.file.originalname,
             date_created: date,
-            s3_bucket_path : result.key,
+            s3_bucket_path : result.Key,
         }
 
         const image = await Images.create(newImage)
 
         logger.info(`POST: image created for product ${req.params.id}`);
 
-        return res.status(201).send(image)
+        return res.status(201).send(newImage)
     }
 }
 
@@ -143,7 +145,7 @@ const getAllImages = async (req, res) => {
         if(images != null){
 
             logger.info(`GET: Images for product ${req.params.id} is fetched`);
-
+            console.log(images)
             return res.status(200).send(images)
         }else{
 
@@ -219,6 +221,7 @@ async function authenticate (req, res) {
                 if(req.params.image){
                     let image = await Images.findOne({where: { product_id: req.params.id, image_id: req.params.image }});
                     if(image == null){
+                        logger.error(`Image ${req.params.image} Not Found`);
                         return res.status(404).send('Not Found')
                     }
                 }
@@ -227,9 +230,13 @@ async function authenticate (req, res) {
                     if(product.owner_user_id == user.id){
                         return user.id
                     }else{
+                        logger.error(`user ${basicAuth[0]} is forbidden to perform this action`)
                         return res.status(403).send('Forbidden') 
                     }
                 }else{
+
+                    logger.error(`product with id: ${req.params.id} Not Found`);
+
                     return res.status(404).send('Not Found')
                 }
             }else{
@@ -237,10 +244,12 @@ async function authenticate (req, res) {
             }
             
         }else{
+            logger.error(`user ${basicAuth[0]} is not authorized`)
             return res.status(401).send('Unauthorized')
         }
 
     }else{
+        logger.error(`user ${basicAuth[0]} is not authorized`)
         return res.status(401).send('Unauthorized')
     }
 }

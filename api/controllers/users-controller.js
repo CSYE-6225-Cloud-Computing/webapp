@@ -32,7 +32,7 @@ const add = async (req, res) => {
     // check if request body exists
     if(Object.keys(req.body).length === 0){
 
-        logger.error("POST: Failed due to bad request body: wrong number of arguments passed");
+        logger.error("POST: Failed due to bad request body: no arguments passed");
 
         return res.status(400).send('Bad request')
     }
@@ -85,7 +85,7 @@ const add = async (req, res) => {
         return res.status(201).send(response)
     }
 
-    logger.error(`User with username: ${username} already exists`);
+    logger.error(`POST: User with username: ${username} already exists`);
 
     return res.status(400).send('Bad request')
 }
@@ -100,8 +100,8 @@ const retrieve = async (req, res) => {
     // check if Auth Block exists in the request
     if(isNaN(req.params.id)){
 
-        logger.error("PUT: ID in Endpoint URL is NaN");
-        
+        logger.error("GET: ID in Endpoint URL is NaN");
+
         return res.status(400).json('Bad request');
     }
 
