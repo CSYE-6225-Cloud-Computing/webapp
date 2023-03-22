@@ -1,5 +1,8 @@
 const bcrypt = require('bcrypt')
 const moment = require('moment')
+const logger = require('../../logger')
+
+const client = require('../../metrics')
 
 const db = require('../models')
 const sequelize  = require('../models/index')
@@ -8,6 +11,11 @@ const User = db.users
 
 // A dummy check method
 const check = async (req,res) =>  {
+
+    logger.info("hitting status check");
+
+    client.increment('myendpoint.requests.check.http.get')
+
     sequelize.sequelize.authenticate()
     .then(() => {
         res.send('Connection established successfully.');
@@ -17,13 +25,23 @@ const check = async (req,res) =>  {
 // add method to create a new user
 const add = async (req, res) => {
 
+    logger.info("POST: hitting create a user");
+
+    client.increment('myendpoint.requests.addUser.http.post')
+
     // check if request body exists
     if(Object.keys(req.body).length === 0){
+
+        logger.error("POST: Failed due to bad request body: wrong number of arguments passed");
+
         return res.status(400).send('Bad request')
     }
 
     // check if request body has all the necessary information
     if(!req.body.first_name || !req.body.last_name || !req.body.username || !req.body.password ){
+
+        logger.error("POST: Failed due to bad request body: Fields mismatch");
+
         return res.status(400).send('Bad request')
     }
 
@@ -61,21 +79,36 @@ const add = async (req, res) => {
         // retrieving back the created user to send it back in response
         let response = await User.findOne({where: { username: username },
             attributes: { exclude: [ 'password']}})
+
+        logger.info(`user ${username} created with id ${response.id}`);
+
         return res.status(201).send(response)
     }
+
+    logger.error(`User with username: ${username} already exists`);
 
     return res.status(400).send('Bad request')
 }
 
 // method to be executed on GET method call
 const retrieve = async (req, res) => {
-    // check if Auth Block exists in the request
 
+    client.increment('myendpoint.requests.getUser.http.get')
+
+    logger.info(`GET:retrieving a user with id: ${req.params.id}`);
+
+    // check if Auth Block exists in the request
     if(isNaN(req.params.id)){
+
+        logger.error("PUT: ID in Endpoint URL is NaN");
+        
         return res.status(400).json('Bad request');
     }
 
     if(!req.get('Authorization')){
+
+        logger.error(`GET:Credentials not provided to authenticate`);
+
         return res.status(401).send('Unauthorized')
     }
 
@@ -89,6 +122,9 @@ const retrieve = async (req, res) => {
             attributes: { exclude: [ 'password']}})
 
         if(user != null){
+
+            logger.info(`GET: Success`);
+
             return res.status(200).send(user)
         }
     }
@@ -98,11 +134,21 @@ const retrieve = async (req, res) => {
 // Update method to be called on PUT method call
 const update = async (req, res) => {
 
+    client.increment('myendpoint.requests.updateUser.http.put')
+
     if(isNaN(req.params.id)){
+
+        logger.error("PUT: ID in Endpoint URL is NaN");
+
         return res.status(400).json('Bad request');
     }
 
+    logger.info(`PUT: updating the user with ID: ${req.params.id}`);
+
     if(!req.get('Authorization')){
+
+        logger.error("PUT: Credentials not provided to authenticate");
+
         return res.status(401).send('Unauthorized')
     }
 
@@ -115,6 +161,9 @@ const update = async (req, res) => {
         if(authenticated == true){
 
             if(!req.body.first_name || !req.body.last_name || !req.body.password){
+
+                logger.error("PUT: Missing necessary parameters required to update");
+
                 return res.status(400).send("Bad Request")
             }
 
@@ -128,22 +177,35 @@ const update = async (req, res) => {
             const user = await User.update({first_name: req.body.first_name, last_name: req.body.last_name, password: hash, account_updated: date}, {where: { id: req.params.id }})
 
             if(user == 1){
+
+                logger.info(`PUT: Updated user with ID: ${req.params.id}`);
+
                 return res.status(204).send(user)
             }
+
+            logger.error("PUT: DB Update Failed");
+
             return res.status(400).send('Bad request')
         }
     }else{
+
+        logger.error(`PUT: Trying to update failed due to bad request`);
+
         return res.status(400).send('Bad request')
     }
 }
 
 // function to authenticate a user
 async function authenticate (req, res) {
+
     // decrypt auth
     var basicAuth = Buffer.from(req.get('Authorization').split(' ')[1], 'base64').toString().split(':')
 
+    logger.info(`checking authentication for user ${basicAuth[0]}`);
+
     // find the user by id
     let userByID = await User.findOne({where: { id: req.params.id }})
+
     let user = await User.findOne({where: { username: basicAuth[0] }})
 
     if(user && userByID){
@@ -151,12 +213,21 @@ async function authenticate (req, res) {
         const authenticated = await bcrypt.compare(basicAuth[1], user.password)
 
         if(authenticated && basicAuth[0] == userByID.username) {
+
+            logger.info(`user ${basicAuth[0]} is authenticated`)
+
             return true
         }
         if(authenticated && basicAuth[0] != userByID.username){
+
+            logger.error(`user ${basicAuth[0]} is forbidden to perform this action`)
+            
             return res.status(403).send('Forbidden')
         }
     }
+    
+    logger.error(`user ${basicAuth[0]} is not authorized`)
+
     return res.status(401).send('Unauthorized')
 }
 

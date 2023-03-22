@@ -28,7 +28,7 @@ jobs:
         cache: 'npm'
     - run: npm ci
     - run: npm run build --if-present
-    - run: npm test
+    - run: npm test -- --exit
     - run: zip -r webapp.zip *.js *.json
     - run: unzip -l webapp.zip
     - run: packer init aws_ami.pkr.hcl
