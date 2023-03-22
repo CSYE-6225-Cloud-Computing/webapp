@@ -246,12 +246,12 @@ const update = async (req, res) => {
 
         if(product == 1){
 
-            logger.info(`UPDATE: Product with id: ${req.params.id} updated`);
+            logger.info(`PUT: Product with id: ${req.params.id} updated`);
 
             return res.status(204).send(product)
         }else{
 
-            logger.info(`UPDATE: Product with id: ${req.params.id} failed to update`);
+            logger.info(`PUT: Product with id: ${req.params.id} failed to update`);
 
             return res.status(400).send('Bad request')
         }
@@ -380,7 +380,7 @@ async function authenticate (req, res) {
                         return user.id
                     }
                 } else{
-                    logger.error(`Image ${req.params.image} Not Found`);
+                    logger.error("Image Not Found");
                     return res.status(404).send('Not Found')
                 }
                     
