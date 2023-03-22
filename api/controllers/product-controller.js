@@ -82,7 +82,7 @@ const add = async (req, res) => {
             // retrieving back the created user to send it back in response
             let response = await Products.findOne({where: { sku: req.body.sku }})
 
-            logger.info(`POST: Product with ${response.id} created`);
+            logger.info(`POST: Product with id ${response.id} created`);
 
             return res.status(201).send(response)
         }
@@ -373,16 +373,20 @@ async function authenticate (req, res) {
                 
                 if(product != null){
                     if(user.id != product.owner_user_id){
+                        logger.error(`user ${basicAuth[0]} is forbidden to perform this action`)
+
                         return res.status(403).send('Forbidden')
                     }else{
                         return user.id
                     }
                 } else{
+                    logger.error(`Image ${req.params.image} Not Found`);
                     return res.status(404).send('Not Found')
                 }
                     
                 
             }else{
+                logger.error(`user ${basicAuth[0]} is not authorized`)
                 return res.status(401).send('Unauthorized')
             }
         }else{
@@ -392,13 +396,16 @@ async function authenticate (req, res) {
                 if(basicAuth[0] == user.username) {
                     return user.id
                 }else{
+                    logger.error(`user ${basicAuth[0]} is forbidden to perform this action`)
                     return res.status(403).send('Forbidden')
                 }
             }else{
+                logger.error(`user ${basicAuth[0]} is not authorized`)
                 return res.status(401).send('Unauthorized')
             }
         }
     }else{
+        logger.error(`user ${basicAuth[0]} is not authorized`)
         return res.status(401).send('Unauthorized')
     }
 }
