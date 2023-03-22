@@ -2,6 +2,8 @@ const bcrypt = require('bcrypt')
 const moment = require('moment')
 const db = require('../models')
 
+const client = require('../../metrics')
+
 const Images = db.images
 const User = db.users
 const Products = db.products
@@ -10,12 +12,22 @@ const {uploadFile, deleteFile} = require('../../s3')
 
 const uploadImage = async (req,res) => {
 
+    client.increment("myendpoint.requests.uploadImage.http.post")
+
+    logger.info(`POST: hitting Image upload`);
+
      //check if Auth block exist in request
      if(!req.get('Authorization')){
+
+        logger.error("POST: Failed to provide credentials to authenticate");
+
         return res.status(401).send('Unauthorized')
     }
 
     if(isNaN(req.params.id) || !req.file){
+
+        logger.error("POST: Bad Request (File is missing in the body)");
+
         return res.status(400).send('Bad request')
     }
 
@@ -28,6 +40,9 @@ const uploadImage = async (req,res) => {
 
         // check if request body has all the necessary information
         if( extension!= "image/jpeg" && extension != "image/png"){
+
+            logger.error(`POST: file with ${extension} is unsupported`);
+
             return res.status(400).send('Bad request')
         }
 
@@ -45,6 +60,8 @@ const uploadImage = async (req,res) => {
 
         const image = await Images.create(newImage)
 
+        logger.info(`POST: image created for product ${req.params.id}`);
+
         return res.status(201).send(image)
     }
 }
@@ -52,12 +69,22 @@ const uploadImage = async (req,res) => {
 // method to be executed on GET method call
 const getImage = async (req, res) => {
 
+    client.increment("myendpoint.requests.getImage.http.get")
+
+    logger.info(`GET: hitting Image retrieval`);
+
     if(isNaN(req.params.id) || isNaN(req.params.image) ){
+
+        logger.error(`GET: ${req.params.image} is not available for product ${req.params.id}`);
+
         return res.status(400).json('Bad request');
     }
 
     //check if auth block exist in request
     if(!req.get('Authorization')){
+
+        logger.error("GET: Failed to provide credentials to authenticate");
+
         return res.status(401).send('Unauthorized')
     }
 
@@ -70,8 +97,15 @@ const getImage = async (req, res) => {
 
         //check if product exist
         if(image != null){
+
+            logger.info(`GET: Successfully retrieved image ${req.params.image}`);
+
             return res.status(200).send(image)
+
         }else{
+
+            logger.error(`GET: Image ${req.params.image} Not found`);
+
             return res.status(404).send("Not Found")
         }
     }
@@ -79,12 +113,22 @@ const getImage = async (req, res) => {
 
 const getAllImages = async (req, res) => {
 
+    client.increment("myendpoint.requests.getAllImages.http.get")
+
+    logger.info(`GET: hitting All Images retrieval for product ${req.params.id}`);
+
     if(isNaN(req.params.id)){
+
+        logger.error("PUT: ID in Endpoint URL is NaN");
+
         return res.status(400).json('Bad request');
     }
 
     //check if auth block exist in request
     if(!req.get('Authorization')){
+
+        logger.error(`GET:Credentials not provided to authenticate`);
+
         return res.status(401).send('Unauthorized')
     }
 
@@ -97,8 +141,14 @@ const getAllImages = async (req, res) => {
 
         //check if product exist
         if(images != null){
+
+            logger.info(`GET: Images for product ${req.params.id} is fetched`);
+
             return res.status(200).send(images)
         }else{
+
+            logger.error(`GET: Images for Product ${req.params.id} is Not found`);
+
             return res.status(404).send("Not Found")
         }
     }
@@ -106,12 +156,22 @@ const getAllImages = async (req, res) => {
 
 const deleteImage = async (req,res) => {
 
+    client.increment("myendpoint.requests.deleteImage.http.delete")
+
+    logger.info("DELETE: hitting Image delete");
+
     if(isNaN(req.params.id) || isNaN(req.params.image) ){
+
+        logger.error("DELETE: ID in Endpoint URL is NaN");
+
         return res.status(400).json('Bad request');
     }
 
     //check if auth block exist in request
     if(!req.get('Authorization')){
+
+        logger.error("DELETE: Failed to provide credentials to authenticate");
+
         return res.status(401).send('Unauthorized')
     }
 
@@ -129,8 +189,15 @@ const deleteImage = async (req,res) => {
             await deleteFile(image.s3_bucket_path)
 
             await Images.destroy({where: { image_id: req.params.image }})
+
+            logger.info(`DELETE: successfully deleted image ${req.params.image}`);
+
             return res.status(204).send()
+
         }else{
+
+            logger.error(`DELETE: Image ${req.params.image} Not Found`);
+
             return res.status(404).send("Not Found")
         }
     }

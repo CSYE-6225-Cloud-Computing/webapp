@@ -73,7 +73,7 @@ const add = async (req, res) => {
         //reject post if product exist already
         if(isSKUExist != null){
 
-            logger.error(`Product with sku: ${req.body.sku} already exists`);
+            logger.error(`POST: Product with sku: ${req.body.sku} already exists`);
 
             return res.status(400).send("SKU already Exist")
         }else{
@@ -98,7 +98,7 @@ const retrieve = async (req, res) => {
 
     if(isNaN(req.params.id)){
 
-        logger.error(`Bad Request: ${req.params.id} is NaN`);
+        logger.error(`GET: ID in EndPoint URL is NaN`);
 
         return res.status(400).json('Bad request');
     }
@@ -108,12 +108,12 @@ const retrieve = async (req, res) => {
     //check if product exist
     if(product != null){
 
-        logger.info(`Product with id: ${product.id} retrieved`);
+        logger.info(`GET: Product with id: ${product.id} retrieved`);
 
         return res.status(200).send(product)
     }else{
 
-        logger.error(`Product with id: ${req.params.id} Not Found`);
+        logger.error(`GET: Product with id: ${req.params.id} Not Found`);
 
         return res.status(404).send("Not Found")
     }
@@ -122,13 +122,13 @@ const retrieve = async (req, res) => {
 
 const remove = async (req,res) => {
 
-    logger.info("hitting delete for product")
+    logger.info("DELETE: hitting delete for product")
 
     client.increment('myendpoint.requests.removeProduct.http.delete')
 
     if(isNaN(req.params.id)){
 
-        logger.error(`Bad Request: ${req.params.id} is NaN`);
+        logger.error(`DELETE: Bad Request: ${req.params.id} is NaN`);
 
         return res.status(400).json('Bad request');
     }
@@ -136,7 +136,7 @@ const remove = async (req,res) => {
     //check if auth block exist in request
     if(!req.get('Authorization')){
 
-        logger.error("delete: Failed to provide credentials to authenticate");
+        logger.error("DELETE: Failed to provide credentials to authenticate");
 
         return res.status(401).send('Unauthorized')
     }
@@ -162,12 +162,12 @@ const remove = async (req,res) => {
         if(product != null){
             const product = await Products.destroy({where: { id: req.params.id }})
 
-            logger.info(`Product with id: ${req.params.id} deleted`);
+            logger.info(`DELETE: Product with id: ${req.params.id} deleted`);
 
             return res.status(204).send()
         }else{
 
-            logger.info(`Product with id: ${req.params.id} not found`);
+            logger.info(`DELETE: Product with id: ${req.params.id} not found`);
 
             return res.status(404).send("Not Found")
         }
@@ -178,13 +178,13 @@ const remove = async (req,res) => {
 // Update method to be called on PUT method call
 const update = async (req, res) => {
 
-    logger.info("hitting PUT for product")
+    logger.info("PUT: hitting PUT for product")
 
     client.increment('myendpoint.requests.updateProduct.http.PUT')
 
     if(isNaN(req.params.id)){
 
-        logger.error(`Bad Request: ${req.params.id} is NaN`);
+        logger.error(`PUT: Bad Request: ${req.params.id} is NaN`);
 
         return res.status(400).json('Bad request');
     }
@@ -192,7 +192,7 @@ const update = async (req, res) => {
     //check if auth block exist
     if(!req.get('Authorization')){
 
-        logger.error("POST: Failed to provide credentials to authenticate");
+        logger.error("PUT: Failed to provide credentials to authenticate");
 
         return res.status(401).send('Unauthorized')
     }
@@ -215,7 +215,7 @@ const update = async (req, res) => {
         req.body.id || req.body.owner_user_id || req.body.account_created || req.body.account_updated
     ){
 
-        logger.error("POST: Failed due to bad request body: wrong number of arguments passed");
+        logger.error("PUT: wrong number of arguments passed");
 
         return res.status(400).send('Bad request')
     }
@@ -225,7 +225,7 @@ const update = async (req, res) => {
 
         if(isSKUExist != null && isSKUExist.id != req.params.id){
 
-            logger.error(`Product with sku: ${req.body.sku} already exists`);
+            logger.error(`PUT: Product with sku: ${req.body.sku} already exists`);
 
             return res.status(400).send("SKU already Exist")
         }
@@ -246,12 +246,12 @@ const update = async (req, res) => {
 
         if(product == 1){
 
-            logger.info(`Product with id: ${req.params.id} updated`);
+            logger.info(`UPDATE: Product with id: ${req.params.id} updated`);
 
             return res.status(204).send(product)
         }else{
 
-            logger.info(`Product with id: ${req.params.id} failed to update`);
+            logger.info(`UPDATE: Product with id: ${req.params.id} failed to update`);
 
             return res.status(400).send('Bad request')
         }
@@ -268,14 +268,14 @@ const replace = async (req, res) => {
 
     if(isNaN(req.params.id)){
 
-        logger.error(`Bad Request: ${req.params.id} is NaN`);
+        logger.error(`PATCH: ID in EndPoint URL is NaN`);
 
         return res.status(400).json('Bad request');
     }
 
     if(!req.get('Authorization')){
 
-        logger.info("POST: Failed to provide credentials to authenticate");
+        logger.info("PATCH: Failed to provide credentials to authenticate");
 
         return res.status(401).send('Unauthorized')
     }
@@ -290,7 +290,7 @@ const replace = async (req, res) => {
         for (const prop in req.body) {
             if(req.body.hasOwnProperty(prop) && !bodyAllowedList.has(prop)) {
 
-                logger.error(`Bad Request: request body has unnecessary fields`);
+                logger.error(`PATCH: request body has unnecessary fields`);
 
                 return res.status(400).json('Bad request');
             }
@@ -311,7 +311,7 @@ const replace = async (req, res) => {
             req.body.id || req.body.owner_user_id || req.body.account_created || req.body.account_updated
         ){
 
-            logger.error("POST: Failed due to bad request body: wrong number of arguments passed");
+            logger.error("PATCH: wrong number of arguments passed");
 
             return res.status(400).send('Bad request')
         }
@@ -322,7 +322,7 @@ const replace = async (req, res) => {
 
             if(isSKUExist != null && isSKUExist.id != req.params.id){
 
-                logger.error(`Product with sku: ${req.body.sku} already exists`);
+                logger.error(`PATCH: Product with sku: ${req.body.sku} already exists`);
 
                 return res.status(400).send("SKU already Exist")
             }
@@ -344,12 +344,12 @@ const replace = async (req, res) => {
 
         if(product == 1){
 
-            logger.info(`product with id: ${req.params.id} updated`);
+            logger.info(`PATCH: product with id: ${req.params.id} updated`);
 
             return res.status(204).send(product)
         }else{
 
-            logger.error(`Failed to updated product with id: ${req.params.id}`);
+            logger.error(`PATCH: Failed to updated product with id: ${req.params.id}`);
 
             return res.status(400).send('Bad request')
         }

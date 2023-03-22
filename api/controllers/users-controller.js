@@ -95,12 +95,15 @@ const retrieve = async (req, res) => {
 
     client.increment('myendpoint.requests.getUser.http.get')
 
+    logger.info(`GET:retrieving a user with id: ${req.params.id}`);
+
     // check if Auth Block exists in the request
     if(isNaN(req.params.id)){
+
+        logger.error("PUT: ID in Endpoint URL is NaN");
+        
         return res.status(400).json('Bad request');
     }
-
-    logger.info(`GET:retrieving a user with id: ${req.params.id}`);
 
     if(!req.get('Authorization')){
 
