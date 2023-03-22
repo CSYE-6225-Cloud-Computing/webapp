@@ -5,8 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "mocha test.spec.js",
-    "build": "ncc build server.js -o dist"
+    "test": "mocha test.spec.js"
   },
   "repository": {
     "type": "git",
