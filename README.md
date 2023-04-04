@@ -2,7 +2,7 @@
 
 ## CSYE 6225: Network Structures and Cloud Computing Course
 
-Milestone: Assignment 07 </br>
+Milestone: Assignment-07 </br>
 Developer - SaiMahith Chigurupati </br>
 NUID - 002700539 </br>
 Email - chigurupati.sa@northeastern.edu
