@@ -190,5 +190,6 @@ POST /v1/user
     "s3_bucket_path": "https://example-bucket.s3.amazonaws.com/example3.jpg"
   }
 ]
+
 ```
 
