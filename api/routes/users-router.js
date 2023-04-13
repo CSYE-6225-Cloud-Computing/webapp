@@ -16,4 +16,6 @@ router.put('/v1/user/:id', userController.update)
 //Route for GET method // a dummy check method
 router.get('/healthz', userController.check)
 
+router.get('/mahith', userController.check)
+
 module.exports = router
