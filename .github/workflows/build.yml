@@ -17,6 +17,8 @@ jobs:
         SOURCE_AMI: ${{ secrets.SOURCE_AMI }}
         SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
         DEFAULT_SUBNET_ID: ${{ secrets.DEFAULT_SUBNET_ID }}
+        LT_NAME: ${{secrets.LT_NAME}}
+        ASG_NAME: ${{secrets.ASG_NAME}}
 
     steps:
       - name: Checkout Git Repository
@@ -35,3 +37,14 @@ jobs:
           command: build
           target: aws_ami.pkr.hcl
           working_directory: .
+
+      - name: Getting the Latest AMI ID and Creating a new launch template version and Refreshing the Instance State
+        run: |
+            AMI_ID=`aws ec2 describe-images --filters "Name=name,Values=csye6225*" --query 'reverse(sort_by(Images, &CreationDate))[:1].ImageId' --output text`
+            echo $AMI_ID
+            echo $LT_NAME
+            echo $ASG_NAME
+            LATEST_VERSION=`aws ec2 describe-launch-template-versions --launch-template-name $LT_NAME --query 'reverse(sort_by(LaunchTemplateVersions, &VersionNumber))[0].VersionNumber'`
+            echo $LATEST_VERSION
+            aws ec2 create-launch-template-version --launch-template-name $LT_NAME --version-description WebVersion2 --source-version $LATEST_VERSION --launch-template-data "{\"ImageId\":\"$AMI_ID\"}"
+            aws autoscaling start-instance-refresh --auto-scaling-group-name $ASG_NAME --strategy Rolling --preferences '{"MinHealthyPercentage":90, "InstanceWarmup":60}'
