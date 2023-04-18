@@ -8,7 +8,7 @@ const router = require('express').Router()
 router.post('/v1/user', userController.add)
 
 //Route for GET method
-router.get('/v1/user/:id', userController.retrieve)
+router.get('/v2/user/:id', userController.retrieve)
 
 //Route for PUT method
 router.put('/v1/user/:id', userController.update)
